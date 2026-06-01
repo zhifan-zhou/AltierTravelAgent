@@ -1,0 +1,75 @@
+{
+  "risk_factors": [
+    {
+      "id": "split_ticket",
+      "name": "Split Ticket Risk",
+      "description": "Separately booked tickets mean a delay on the first ticket can void the second. No airline obligation to rebook.",
+      "base_score": 0.30,
+      "trigger_condition": "split_ticket_count > 0",
+      "warning_template": "Split ticket: 前段延误将导致后段作废，建议预留至少 6 小时转机时间。"
+    },
+    {
+      "id": "short_connection",
+      "name": "Short Connection Risk",
+      "description": "Connection time below recommended minimum.",
+      "base_score": 0.25,
+      "trigger_condition": "min_connection_minutes < 120",
+      "warning_template": "转机时间过短（不足 2 小时），建议延长转机时间。"
+    },
+    {
+      "id": "baggage_recheck",
+      "name": "Baggage Recheck Risk",
+      "description": "Split tickets require collecting and rechecking baggage.",
+      "base_score": 0.15,
+      "trigger_condition": "split_ticket_count > 0",
+      "warning_template": "行李需取出后重新托运，增加转机时间要求。"
+    },
+    {
+      "id": "overnight_stay",
+      "name": "Overnight Stay Risk",
+      "description": "Itinerary may require an overnight layover.",
+      "base_score": 0.20,
+      "trigger_condition": "has_overnight_layover",
+      "warning_template": "需过夜转机，增加住宿成本及时间。"
+    },
+    {
+      "id": "airport_transfer",
+      "name": "Airport Transfer Risk",
+      "description": "Transfer between different airports (e.g. JFK to LGA) adds complexity.",
+      "base_score": 0.25,
+      "trigger_condition": "airport_change_required",
+      "warning_template": "需换机场转机（如 JFK -> LGA），需要额外时间和交通安排。"
+    },
+    {
+      "id": "visa_entry",
+      "name": "Visa/Entry Risk",
+      "description": "Some routings may require transit visas or entry clearance.",
+      "base_score": 0.10,
+      "trigger_condition": "transit_visa_required",
+      "warning_template": "该路线可能需要过境签证，请确认签证要求。"
+    },
+    {
+      "id": "hidden_city",
+      "name": "Hidden City Ticketing Risk",
+      "description": "Booking a flight with a layover at the actual destination and not flying the final leg. Against airline terms.",
+      "base_score": 0.50,
+      "trigger_condition": "hidden_city_detected",
+      "warning_template": "检测到潜在 hidden city 出票方案。这是违反航空公司规定的行为，不推荐使用。行李将被运至票面目的地，且航空公司可能取消回程。"
+    },
+    {
+      "id": "price_expiration",
+      "name": "Price Expiration Risk",
+      "description": "Mock prices may not reflect real-time availability.",
+      "base_score": 0.10,
+      "trigger_condition": "provider == 'mock'",
+      "warning_template": "当前价格为模拟数据，实际价格以出票时为准。"
+    }
+  ],
+  "risk_levels": {
+    "low": {"max_score": 0.25, "label": "低风险"},
+    "medium": {"max_score": 0.60, "label": "中等风险"},
+    "high": {"max_score": 1.0, "label": "高风险"}
+  },
+  "not_recommended_flags": ["hidden_city", "visa_entry"],
+  "warn_flags": ["split_ticket", "short_connection", "baggage_recheck", "overnight_stay", "airport_transfer"]
+}

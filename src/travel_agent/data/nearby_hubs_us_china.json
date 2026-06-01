@@ -1,0 +1,136 @@
+{
+  "_description": "Nearby international hub airports for China-US routes. Used by HubSplit Agent.",
+  "origin_hubs": {
+    "NGB": [
+      {"hub_code": "PVG", "access_mode": "train/car", "access_time_hours": 2.5, "access_cost_usd": 35, "hub_score": 0.95, "notes": "高铁1.5h到上海虹桥，转地铁到浦东机场"},
+      {"hub_code": "SHA", "access_mode": "train/car", "access_time_hours": 2.5, "access_cost_usd": 35, "hub_score": 0.90, "notes": "高铁到上海虹桥站，紧邻SHA机场"},
+      {"hub_code": "HGH", "access_mode": "train/car", "access_time_hours": 1.5, "access_cost_usd": 25, "hub_score": 0.85, "notes": "高铁1h到杭州东站，转地铁到萧山机场"},
+      {"hub_code": "NKG", "access_mode": "train/car", "access_time_hours": 2.0, "access_cost_usd": 40, "hub_score": 0.70, "notes": "高铁2h到南京南站，转地铁到禄口机场"}
+    ],
+    "HGH": [
+      {"hub_code": "PVG", "access_mode": "train/car", "access_time_hours": 1.5, "access_cost_usd": 25, "hub_score": 0.90, "notes": "高铁1h到上海"},
+      {"hub_code": "SHA", "access_mode": "train/car", "access_time_hours": 1.5, "access_cost_usd": 25, "hub_score": 0.85, "notes": "高铁到上海虹桥"}
+    ],
+    "NKG": [
+      {"hub_code": "PVG", "access_mode": "train/car", "access_time_hours": 2.0, "access_cost_usd": 40, "hub_score": 0.80},
+      {"hub_code": "SHA", "access_mode": "train/car", "access_time_hours": 2.0, "access_cost_usd": 40, "hub_score": 0.75},
+      {"hub_code": "PEK", "access_mode": "domestic_flight", "access_time_hours": 4.0, "access_cost_usd": 120, "hub_score": 0.55}
+    ],
+    "SHA": [
+      {"hub_code": "PVG", "access_mode": "metro/taxi", "access_time_hours": 1.0, "access_cost_usd": 15, "hub_score": 1.0, "notes": "同城，地铁/出租车1小时到浦东"}
+    ],
+    "PVG": [
+      {"hub_code": "SHA", "access_mode": "metro/taxi", "access_time_hours": 1.0, "access_cost_usd": 15, "hub_score": 0.90, "notes": "同城到虹桥"}
+    ],
+    "PEK": [],
+    "PKX": [],
+    "CAN": [],
+    "SZX": [
+      {"hub_code": "HKG", "access_mode": "ferry/bus", "access_time_hours": 2.0, "access_cost_usd": 40, "hub_score": 0.85, "notes": "深圳到香港机场，口岸过关+巴士"},
+      {"hub_code": "CAN", "access_mode": "train/car", "access_time_hours": 1.5, "access_cost_usd": 25, "hub_score": 0.80, "notes": "高铁到广州"}
+    ],
+    "HKG": [],
+    "XMN": [
+      {"hub_code": "PVG", "access_mode": "domestic_flight", "access_time_hours": 3.0, "access_cost_usd": 100, "hub_score": 0.70, "notes": "厦航/东航直飞上海"},
+      {"hub_code": "FOC", "access_mode": "train/car", "access_time_hours": 2.0, "access_cost_usd": 30, "hub_score": 0.60, "notes": "高铁到福州"}
+    ],
+    "FOC": [
+      {"hub_code": "PVG", "access_mode": "domestic_flight", "access_time_hours": 2.5, "access_cost_usd": 110, "hub_score": 0.70},
+      {"hub_code": "XMN", "access_mode": "train/car", "access_time_hours": 2.0, "access_cost_usd": 30, "hub_score": 0.65}
+    ],
+    "TFU": [
+      {"hub_code": "PVG", "access_mode": "domestic_flight", "access_time_hours": 3.0, "access_cost_usd": 130, "hub_score": 0.70},
+      {"hub_code": "PEK", "access_mode": "domestic_flight", "access_time_hours": 3.0, "access_cost_usd": 130, "hub_score": 0.68},
+      {"hub_code": "HKG", "access_mode": "domestic_flight", "access_time_hours": 3.0, "access_cost_usd": 140, "hub_score": 0.62}
+    ],
+    "CTU": [
+      {"hub_code": "TFU", "access_mode": "metro/car", "access_time_hours": 1.0, "access_cost_usd": 20, "hub_score": 0.95},
+      {"hub_code": "PVG", "access_mode": "domestic_flight", "access_time_hours": 3.0, "access_cost_usd": 130, "hub_score": 0.65}
+    ],
+    "CKG": [],
+    "TAO": [
+      {"hub_code": "PVG", "access_mode": "domestic_flight", "access_time_hours": 2.5, "access_cost_usd": 120, "hub_score": 0.65},
+      {"hub_code": "PEK", "access_mode": "domestic_flight", "access_time_hours": 2.0, "access_cost_usd": 100, "hub_score": 0.60}
+    ],
+    "WUH": [
+      {"hub_code": "PVG", "access_mode": "domestic_flight", "access_time_hours": 2.5, "access_cost_usd": 110, "hub_score": 0.70},
+      {"hub_code": "CAN", "access_mode": "train/domestic_flight", "access_time_hours": 4.0, "access_cost_usd": 80, "hub_score": 0.55},
+      {"hub_code": "PEK", "access_mode": "domestic_flight", "access_time_hours": 2.5, "access_cost_usd": 130, "hub_score": 0.55}
+    ],
+    "XIY": [
+      {"hub_code": "PEK", "access_mode": "domestic_flight", "access_time_hours": 2.5, "access_cost_usd": 130, "hub_score": 0.70},
+      {"hub_code": "PVG", "access_mode": "domestic_flight", "access_time_hours": 3.0, "access_cost_usd": 140, "hub_score": 0.65},
+      {"hub_code": "TFU", "access_mode": "train/domestic_flight", "access_time_hours": 3.5, "access_cost_usd": 100, "hub_score": 0.50}
+    ],
+    "WNZ": [
+      {"hub_code": "PVG", "access_mode": "train/car", "access_time_hours": 3.5, "access_cost_usd": 50, "hub_score": 0.85, "notes": "高铁约3h到上海，转地铁到浦东"},
+      {"hub_code": "SHA", "access_mode": "train/car", "access_time_hours": 3.5, "access_cost_usd": 50, "hub_score": 0.80, "notes": "高铁约3h到上海虹桥"},
+      {"hub_code": "HGH", "access_mode": "train/car", "access_time_hours": 2.0, "access_cost_usd": 35, "hub_score": 0.75, "notes": "高铁约2h到杭州"}
+    ]
+  },
+  "destination_hubs": {
+    "PIT": [
+      {"hub_code": "JFK", "access_mode": "domestic_flight", "access_time_hours": 1.5, "access_cost_usd": 180, "hub_score": 0.95},
+      {"hub_code": "EWR", "access_mode": "domestic_flight", "access_time_hours": 1.5, "access_cost_usd": 170, "hub_score": 0.90},
+      {"hub_code": "IAD", "access_mode": "domestic_flight", "access_time_hours": 1.5, "access_cost_usd": 160, "hub_score": 0.88},
+      {"hub_code": "ORD", "access_mode": "domestic_flight", "access_time_hours": 1.5, "access_cost_usd": 150, "hub_score": 0.85},
+      {"hub_code": "PHL", "access_mode": "domestic_flight", "access_time_hours": 1.5, "access_cost_usd": 155, "hub_score": 0.82},
+      {"hub_code": "BOS", "access_mode": "domestic_flight", "access_time_hours": 2.0, "access_cost_usd": 200, "hub_score": 0.75},
+      {"hub_code": "DTW", "access_mode": "domestic_flight", "access_time_hours": 1.0, "access_cost_usd": 140, "hub_score": 0.70},
+      {"hub_code": "CLE", "access_mode": "car/bus", "access_time_hours": 2.5, "access_cost_usd": 45, "hub_score": 0.60}
+    ],
+    "BOS": [
+      {"hub_code": "JFK", "access_mode": "train/car", "access_time_hours": 4.0, "access_cost_usd": 50, "hub_score": 0.80},
+      {"hub_code": "EWR", "access_mode": "train/car", "access_time_hours": 4.5, "access_cost_usd": 55, "hub_score": 0.75}
+    ],
+    "JFK": [],
+    "EWR": [],
+    "IAD": [
+      {"hub_code": "JFK", "access_mode": "train/car", "access_time_hours": 4.0, "access_cost_usd": 50, "hub_score": 0.70},
+      {"hub_code": "PHL", "access_mode": "train/car", "access_time_hours": 2.5, "access_cost_usd": 40, "hub_score": 0.65}
+    ],
+    "ORD": [],
+    "PHL": [
+      {"hub_code": "JFK", "access_mode": "train/car", "access_time_hours": 2.0, "access_cost_usd": 35, "hub_score": 0.85},
+      {"hub_code": "EWR", "access_mode": "train/car", "access_time_hours": 1.5, "access_cost_usd": 30, "hub_score": 0.80},
+      {"hub_code": "IAD", "access_mode": "train/car", "access_time_hours": 2.5, "access_cost_usd": 40, "hub_score": 0.65}
+    ],
+    "CLE": [
+      {"hub_code": "ORD", "access_mode": "domestic_flight", "access_time_hours": 1.5, "access_cost_usd": 150, "hub_score": 0.70},
+      {"hub_code": "DTW", "access_mode": "domestic_flight", "access_time_hours": 1.0, "access_cost_usd": 130, "hub_score": 0.75},
+      {"hub_code": "PIT", "access_mode": "car/bus", "access_time_hours": 2.5, "access_cost_usd": 45, "hub_score": 0.55}
+    ],
+    "LAX": [],
+    "SFO": [],
+    "SEA": [],
+    "DFW": [],
+    "ATL": [],
+    "DTW": [
+      {"hub_code": "ORD", "access_mode": "domestic_flight", "access_time_hours": 1.5, "access_cost_usd": 130, "hub_score": 0.80},
+      {"hub_code": "JFK", "access_mode": "domestic_flight", "access_time_hours": 2.0, "access_cost_usd": 180, "hub_score": 0.70}
+    ],
+    "MSP": [
+      {"hub_code": "ORD", "access_mode": "domestic_flight", "access_time_hours": 1.5, "access_cost_usd": 140, "hub_score": 0.75},
+      {"hub_code": "DTW", "access_mode": "domestic_flight", "access_time_hours": 2.0, "access_cost_usd": 150, "hub_score": 0.65}
+    ],
+    "STL": [
+      {"hub_code": "ORD", "access_mode": "domestic_flight", "access_time_hours": 1.5, "access_cost_usd": 140, "hub_score": 0.80},
+      {"hub_code": "DFW", "access_mode": "domestic_flight", "access_time_hours": 2.0, "access_cost_usd": 160, "hub_score": 0.65},
+      {"hub_code": "ATL", "access_mode": "domestic_flight", "access_time_hours": 1.5, "access_cost_usd": 150, "hub_score": 0.60}
+    ],
+    "YYZ": [
+      {"hub_code": "JFK", "access_mode": "domestic_flight", "access_time_hours": 1.5, "access_cost_usd": 200, "hub_score": 0.80},
+      {"hub_code": "ORD", "access_mode": "domestic_flight", "access_time_hours": 1.5, "access_cost_usd": 180, "hub_score": 0.75}
+    ],
+    "YVR": [
+      {"hub_code": "SEA", "access_mode": "car/bus", "access_time_hours": 3.0, "access_cost_usd": 50, "hub_score": 0.75},
+      {"hub_code": "SFO", "access_mode": "domestic_flight", "access_time_hours": 2.5, "access_cost_usd": 180, "hub_score": 0.65}
+    ],
+    "AUS": [
+      {"hub_code": "DFW", "access_mode": "domestic_flight", "access_time_hours": 1.0, "access_cost_usd": 120, "hub_score": 0.90},
+      {"hub_code": "LAX", "access_mode": "domestic_flight", "access_time_hours": 3.0, "access_cost_usd": 180, "hub_score": 0.72},
+      {"hub_code": "SFO", "access_mode": "domestic_flight", "access_time_hours": 3.5, "access_cost_usd": 190, "hub_score": 0.68},
+      {"hub_code": "SEA", "access_mode": "domestic_flight", "access_time_hours": 4.0, "access_cost_usd": 200, "hub_score": 0.62}
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "airlines": {
+    "UA": {"code": "UA", "name": "United Airlines", "name_zh": "美联航", "alliance": "Star Alliance", "airline_type": "full_service", "quality_tier": "major", "reliability_score": 0.75, "long_haul_score": 0.80, "notes_zh": "美国三大航之一，跨太平洋航线覆盖较广"},
+    "DL": {"code": "DL", "name": "Delta Air Lines", "name_zh": "达美航空", "alliance": "SkyTeam", "airline_type": "full_service", "quality_tier": "major", "reliability_score": 0.80, "long_haul_score": 0.78, "notes_zh": "美国三大航之一，服务评价较高"},
+    "AA": {"code": "AA", "name": "American Airlines", "name_zh": "美国航空", "alliance": "oneworld", "airline_type": "full_service", "quality_tier": "major", "reliability_score": 0.72, "long_haul_score": 0.75, "notes_zh": "美国三大航之一，航线网络最广"},
+    "AC": {"code": "AC", "name": "Air Canada", "name_zh": "加拿大航空", "alliance": "Star Alliance", "airline_type": "full_service", "quality_tier": "major", "reliability_score": 0.78, "long_haul_score": 0.80, "notes_zh": "加拿大载旗航司，北美中转常用"},
+    "AS": {"code": "AS", "name": "Alaska Airlines", "name_zh": "阿拉斯加航空", "alliance": "oneworld", "airline_type": "full_service", "quality_tier": "standard", "reliability_score": 0.75, "long_haul_score": 0.60, "notes_zh": "美国西海岸区域性航司，国内段可靠"},
+    "B6": {"code": "B6", "name": "JetBlue", "name_zh": "捷蓝航空", "alliance": null, "airline_type": "low_cost", "quality_tier": "standard", "reliability_score": 0.65, "long_haul_score": 0.55, "notes_zh": "美国低成本航司，部分跨大西洋航线"},
+    "WN": {"code": "WN", "name": "Southwest Airlines", "name_zh": "西南航空", "alliance": null, "airline_type": "low_cost", "quality_tier": "standard", "reliability_score": 0.70, "long_haul_score": 0.30, "notes_zh": "美国最大低成本航司，以国内航线为主"},
+    "NK": {"code": "NK", "name": "Spirit Airlines", "name_zh": "精神航空", "alliance": null, "airline_type": "low_cost", "quality_tier": "budget", "reliability_score": 0.45, "long_haul_score": 0.20, "notes_zh": "美国超低成本航司，行李和改签收费较高"},
+    "F9": {"code": "F9", "name": "Frontier Airlines", "name_zh": "边疆航空", "alliance": null, "airline_type": "low_cost", "quality_tier": "budget", "reliability_score": 0.40, "long_haul_score": 0.20, "notes_zh": "美国超低成本航司"},
+
+    "CA": {"code": "CA", "name": "Air China", "name_zh": "中国国航", "alliance": "Star Alliance", "airline_type": "full_service", "quality_tier": "major", "reliability_score": 0.75, "long_haul_score": 0.78, "notes_zh": "中国载旗航司，北京枢纽跨太平洋航线主力"},
+    "MU": {"code": "MU", "name": "China Eastern", "name_zh": "中国东方航空", "alliance": "SkyTeam", "airline_type": "full_service", "quality_tier": "major", "reliability_score": 0.73, "long_haul_score": 0.75, "notes_zh": "上海枢纽主力航司，跨太平洋航线覆盖广"},
+    "CZ": {"code": "CZ", "name": "China Southern", "name_zh": "中国南方航空", "alliance": null, "airline_type": "full_service", "quality_tier": "major", "reliability_score": 0.72, "long_haul_score": 0.75, "notes_zh": "广州枢纽主力航司，机队规模亚洲最大"},
+    "MF": {"code": "MF", "name": "XiamenAir", "name_zh": "厦门航空", "alliance": "SkyTeam", "airline_type": "full_service", "quality_tier": "standard", "reliability_score": 0.70, "long_haul_score": 0.65, "notes_zh": "厦门枢纽航司，服务口碑好"},
+    "HU": {"code": "HU", "name": "Hainan Airlines", "name_zh": "海南航空", "alliance": null, "airline_type": "full_service", "quality_tier": "major", "reliability_score": 0.74, "long_haul_score": 0.73, "notes_zh": "Skytrax五星航司，服务品质高"},
+    "CX": {"code": "CX", "name": "Cathay Pacific", "name_zh": "国泰航空", "alliance": "oneworld", "airline_type": "full_service", "quality_tier": "premium", "reliability_score": 0.90, "long_haul_score": 0.92, "notes_zh": "香港载旗航司，全球顶尖长途航司之一"},
+    "BR": {"code": "BR", "name": "EVA Air", "name_zh": "长荣航空", "alliance": "Star Alliance", "airline_type": "full_service", "quality_tier": "premium", "reliability_score": 0.88, "long_haul_score": 0.85, "notes_zh": "台湾航司，Skytrax五星"},
+    "CI": {"code": "CI", "name": "China Airlines", "name_zh": "中华航空", "alliance": "SkyTeam", "airline_type": "full_service", "quality_tier": "standard", "reliability_score": 0.70, "long_haul_score": 0.72, "notes_zh": "台湾载旗航司"},
+
+    "NH": {"code": "NH", "name": "ANA", "name_zh": "全日空", "alliance": "Star Alliance", "airline_type": "full_service", "quality_tier": "premium", "reliability_score": 0.92, "long_haul_score": 0.95, "notes_zh": "日本五星航司，全球顶尖长途体验"},
+    "JL": {"code": "JL", "name": "Japan Airlines", "name_zh": "日本航空", "alliance": "oneworld", "airline_type": "full_service", "quality_tier": "premium", "reliability_score": 0.90, "long_haul_score": 0.90, "notes_zh": "日本载旗航司，服务品质全球一流"},
+    "KE": {"code": "KE", "name": "Korean Air", "name_zh": "大韩航空", "alliance": "SkyTeam", "airline_type": "full_service", "quality_tier": "premium", "reliability_score": 0.85, "long_haul_score": 0.85, "notes_zh": "韩国载旗航司，仁川枢纽中转便利"},
+    "OZ": {"code": "OZ", "name": "Asiana Airlines", "name_zh": "韩亚航空", "alliance": "Star Alliance", "airline_type": "full_service", "quality_tier": "major", "reliability_score": 0.82, "long_haul_score": 0.82, "notes_zh": "韩国第二大航司"},
+
+    "SQ": {"code": "SQ", "name": "Singapore Airlines", "name_zh": "新加坡航空", "alliance": "Star Alliance", "airline_type": "full_service", "quality_tier": "premium", "reliability_score": 0.95, "long_haul_score": 0.95, "notes_zh": "全球公认最佳航司之一"},
+    "QR": {"code": "QR", "name": "Qatar Airways", "name_zh": "卡塔尔航空", "alliance": "oneworld", "airline_type": "full_service", "quality_tier": "premium", "reliability_score": 0.93, "long_haul_score": 0.93, "notes_zh": "中东五星航司，多哈枢纽"},
+    "EK": {"code": "EK", "name": "Emirates", "name_zh": "阿联酋航空", "alliance": null, "airline_type": "full_service", "quality_tier": "premium", "reliability_score": 0.92, "long_haul_score": 0.92, "notes_zh": "迪拜枢纽，A380机队最大运营商"},
+    "EY": {"code": "EY", "name": "Etihad", "name_zh": "阿提哈德航空", "alliance": null, "airline_type": "full_service", "quality_tier": "premium", "reliability_score": 0.88, "long_haul_score": 0.88, "notes_zh": "阿布扎比枢纽"},
+    "LH": {"code": "LH", "name": "Lufthansa", "name_zh": "汉莎航空", "alliance": "Star Alliance", "airline_type": "full_service", "quality_tier": "premium", "reliability_score": 0.85, "long_haul_score": 0.87, "notes_zh": "德国载旗航司，法兰克福/慕尼黑枢纽"},
+    "AF": {"code": "AF", "name": "Air France", "name_zh": "法国航空", "alliance": "SkyTeam", "airline_type": "full_service", "quality_tier": "major", "reliability_score": 0.80, "long_haul_score": 0.82, "notes_zh": "法国载旗航司，巴黎枢纽"},
+    "KL": {"code": "KL", "name": "KLM", "name_zh": "荷兰皇家航空", "alliance": "SkyTeam", "airline_type": "full_service", "quality_tier": "major", "reliability_score": 0.82, "long_haul_score": 0.83, "notes_zh": "荷兰载旗航司，阿姆斯特丹枢纽"},
+    "BA": {"code": "BA", "name": "British Airways", "name_zh": "英国航空", "alliance": "oneworld", "airline_type": "full_service", "quality_tier": "major", "reliability_score": 0.80, "long_haul_score": 0.82, "notes_zh": "英国载旗航司，伦敦枢纽"},
+    "TK": {"code": "TK", "name": "Turkish Airlines", "name_zh": "土耳其航空", "alliance": "Star Alliance", "airline_type": "full_service", "quality_tier": "major", "reliability_score": 0.78, "long_haul_score": 0.80, "notes_zh": "伊斯坦布尔枢纽，航线网络广泛"},
+
+    "3U": {"code": "3U", "name": "Sichuan Airlines", "name_zh": "四川航空", "alliance": null, "airline_type": "full_service", "quality_tier": "standard", "reliability_score": 0.68, "long_haul_score": 0.65, "notes_zh": "成都枢纽航司，部分国际航线"}
+  },
+  "quality_score_map": {
+    "premium": 0.95,
+    "major": 0.82,
+    "standard": 0.65,
+    "budget": 0.40,
+    "unknown": 0.50
+  }
+}

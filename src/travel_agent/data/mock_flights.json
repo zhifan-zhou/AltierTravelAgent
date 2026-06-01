@@ -1,0 +1,1459 @@
+{
+  "description": "Mock flight data for MVP. Prices designed to demonstrate HubSplit value — split routes generally cheaper than direct OTA searches.",
+  "flights": {
+    "direct": {
+      "NGB->PIT": {
+        "offers": [
+          {
+            "id": "mock-direct-ngb-pit-econ-001",
+            "segments": [
+              {
+                "origin": "NGB",
+                "destination": "PEK",
+                "departure_time": "2026-06-15T08:00:00",
+                "arrival_time": "2026-06-15T10:30:00",
+                "airline": "CA",
+                "airline_name": "Air China",
+                "flight_number": "CA1842",
+                "cabin": "economy"
+              },
+              {
+                "origin": "PEK",
+                "destination": "JFK",
+                "departure_time": "2026-06-15T14:00:00",
+                "arrival_time": "2026-06-15T17:00:00",
+                "airline": "CA",
+                "airline_name": "Air China",
+                "flight_number": "CA981",
+                "cabin": "economy"
+              },
+              {
+                "origin": "JFK",
+                "destination": "PIT",
+                "departure_time": "2026-06-15T20:00:00",
+                "arrival_time": "2026-06-15T22:00:00",
+                "airline": "AA",
+                "airline_name": "American Airlines",
+                "flight_number": "AA4521",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 1850,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_combined_ota",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          },
+          {
+            "id": "mock-direct-ngb-pit-biz-001",
+            "segments": [
+              {
+                "origin": "NGB",
+                "destination": "PEK",
+                "departure_time": "2026-06-15T08:00:00",
+                "arrival_time": "2026-06-15T10:30:00",
+                "airline": "CA",
+                "airline_name": "Air China",
+                "flight_number": "CA1842",
+                "cabin": "business"
+              },
+              {
+                "origin": "PEK",
+                "destination": "JFK",
+                "departure_time": "2026-06-15T14:00:00",
+                "arrival_time": "2026-06-15T17:00:00",
+                "airline": "CA",
+                "airline_name": "Air China",
+                "flight_number": "CA981",
+                "cabin": "business"
+              },
+              {
+                "origin": "JFK",
+                "destination": "PIT",
+                "departure_time": "2026-06-15T20:00:00",
+                "arrival_time": "2026-06-15T22:00:00",
+                "airline": "AA",
+                "airline_name": "American Airlines",
+                "flight_number": "AA4521",
+                "cabin": "business"
+              }
+            ],
+            "total_price_usd": 8500,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_combined_ota",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": true
+          }
+        ]
+      },
+      "NGB->BOS": {
+        "offers": [
+          {
+            "id": "mock-direct-ngb-bos-econ-001",
+            "segments": [
+              {
+                "origin": "NGB",
+                "destination": "PEK",
+                "departure_time": "2026-06-15T08:00:00",
+                "arrival_time": "2026-06-15T10:30:00",
+                "airline": "CA",
+                "airline_name": "Air China",
+                "flight_number": "CA1842",
+                "cabin": "economy"
+              },
+              {
+                "origin": "PEK",
+                "destination": "BOS",
+                "departure_time": "2026-06-15T14:00:00",
+                "arrival_time": "2026-06-15T20:00:00",
+                "airline": "HU",
+                "airline_name": "Hainan Airlines",
+                "flight_number": "HU481",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 1950,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_combined_ota",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "HGH->BOS": {
+        "offers": [
+          {
+            "id": "mock-direct-hgh-bos-econ-001",
+            "segments": [
+              {
+                "origin": "HGH",
+                "destination": "PEK",
+                "departure_time": "2026-06-15T07:00:00",
+                "arrival_time": "2026-06-15T09:00:00",
+                "airline": "CA",
+                "airline_name": "Air China",
+                "flight_number": "CA1701",
+                "cabin": "economy"
+              },
+              {
+                "origin": "PEK",
+                "destination": "BOS",
+                "departure_time": "2026-06-15T14:00:00",
+                "arrival_time": "2026-06-15T20:00:00",
+                "airline": "HU",
+                "airline_name": "Hainan Airlines",
+                "flight_number": "HU481",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 1900,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_combined_ota",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "NKG->JFK": {
+        "offers": [
+          {
+            "id": "mock-direct-nkg-jfk-econ-001",
+            "segments": [
+              {
+                "origin": "NKG",
+                "destination": "JFK",
+                "departure_time": "2026-06-15T16:30:00",
+                "arrival_time": "2026-06-15T19:30:00",
+                "airline": "MU",
+                "airline_name": "China Eastern",
+                "flight_number": "MU2855",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 1700,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "PEK->SEA": {
+        "offers": [
+          {
+            "id": "mock-direct-pek-sea-econ-001",
+            "segments": [
+              {
+                "origin": "PEK",
+                "destination": "SEA",
+                "departure_time": "2026-06-15T16:00:00",
+                "arrival_time": "2026-06-15T12:00:00",
+                "airline": "HU",
+                "airline_name": "Hainan Airlines",
+                "flight_number": "HU495",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 1400,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "PEK->ORD": {
+        "offers": [
+          {
+            "id": "mock-direct-pek-ord-econ-001",
+            "segments": [
+              {
+                "origin": "PEK",
+                "destination": "ORD",
+                "departure_time": "2026-06-15T17:00:00",
+                "arrival_time": "2026-06-15T19:00:00",
+                "airline": "UA",
+                "airline_name": "United Airlines",
+                "flight_number": "UA850",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 1550,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "SZX->ORD": {
+        "offers": [
+          {
+            "id": "mock-direct-szx-ord-econ-001",
+            "segments": [
+              {
+                "origin": "SZX",
+                "destination": "PEK",
+                "departure_time": "2026-06-15T06:00:00",
+                "arrival_time": "2026-06-15T09:00:00",
+                "airline": "CA",
+                "airline_name": "Air China",
+                "flight_number": "CA1304",
+                "cabin": "economy"
+              },
+              {
+                "origin": "PEK",
+                "destination": "ORD",
+                "departure_time": "2026-06-15T17:00:00",
+                "arrival_time": "2026-06-15T19:00:00",
+                "airline": "UA",
+                "airline_name": "United Airlines",
+                "flight_number": "UA850",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 2100,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_combined_ota",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "TFU->LAX": {
+        "offers": [
+          {
+            "id": "mock-direct-tfu-lax-econ-001",
+            "segments": [
+              {
+                "origin": "TFU",
+                "destination": "LAX",
+                "departure_time": "2026-06-15T21:00:00",
+                "arrival_time": "2026-06-15T19:00:00",
+                "airline": "3U",
+                "airline_name": "Sichuan Airlines",
+                "flight_number": "3U3831",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 1600,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "PVG->PIT": {
+        "offers": [
+          {
+            "id": "mock-direct-pvg-pit-econ-001",
+            "segments": [
+              {
+                "origin": "PVG",
+                "destination": "JFK",
+                "departure_time": "2026-06-15T17:00:00",
+                "arrival_time": "2026-06-15T20:00:00",
+                "airline": "MU",
+                "airline_name": "China Eastern",
+                "flight_number": "MU587",
+                "cabin": "economy"
+              },
+              {
+                "origin": "JFK",
+                "destination": "PIT",
+                "departure_time": "2026-06-15T22:00:00",
+                "arrival_time": "2026-06-16T00:00:00",
+                "airline": "AA",
+                "airline_name": "American Airlines",
+                "flight_number": "AA4521",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 1550,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "CAN->BOS": {
+        "offers": [
+          {
+            "id": "mock-direct-can-bos-econ-001",
+            "segments": [
+              {
+                "origin": "CAN",
+                "destination": "JFK",
+                "departure_time": "2026-06-15T01:00:00",
+                "arrival_time": "2026-06-15T05:00:00",
+                "airline": "CZ",
+                "airline_name": "China Southern",
+                "flight_number": "CZ699",
+                "cabin": "economy"
+              },
+              {
+                "origin": "JFK",
+                "destination": "BOS",
+                "departure_time": "2026-06-16T08:00:00",
+                "arrival_time": "2026-06-16T09:00:00",
+                "airline": "DL",
+                "airline_name": "Delta",
+                "flight_number": "DL5851",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 1750,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_combined_ota",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      }
+    },
+    "international": {
+      "PVG->JFK": {
+        "offers": [
+          {
+            "id": "mock-intl-pvg-jfk-econ-001",
+            "segments": [
+              {
+                "origin": "PVG",
+                "destination": "JFK",
+                "departure_time": "2026-06-15T17:00:00",
+                "arrival_time": "2026-06-15T20:00:00",
+                "airline": "MU",
+                "airline_name": "China Eastern",
+                "flight_number": "MU587",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 820,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          },
+          {
+            "id": "mock-intl-pvg-jfk-econ-002",
+            "segments": [
+              {
+                "origin": "PVG",
+                "destination": "JFK",
+                "departure_time": "2026-06-16T01:00:00",
+                "arrival_time": "2026-06-16T04:00:00",
+                "airline": "CZ",
+                "airline_name": "China Southern",
+                "flight_number": "CZ699",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 750,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          },
+          {
+            "id": "mock-intl-pvg-jfk-biz-001",
+            "segments": [
+              {
+                "origin": "PVG",
+                "destination": "JFK",
+                "departure_time": "2026-06-15T17:00:00",
+                "arrival_time": "2026-06-15T20:00:00",
+                "airline": "MU",
+                "airline_name": "China Eastern",
+                "flight_number": "MU587",
+                "cabin": "business"
+              }
+            ],
+            "total_price_usd": 4800,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_business",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": true
+          }
+        ]
+      },
+      "PVG->EWR": {
+        "offers": [
+          {
+            "id": "mock-intl-pvg-ewr-econ-001",
+            "segments": [
+              {
+                "origin": "PVG",
+                "destination": "EWR",
+                "departure_time": "2026-06-15T16:00:00",
+                "arrival_time": "2026-06-15T19:00:00",
+                "airline": "UA",
+                "airline_name": "United Airlines",
+                "flight_number": "UA87",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 880,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "PVG->IAD": {
+        "offers": [
+          {
+            "id": "mock-intl-pvg-iad-econ-001",
+            "segments": [
+              {
+                "origin": "PVG",
+                "destination": "IAD",
+                "departure_time": "2026-06-15T15:30:00",
+                "arrival_time": "2026-06-15T18:30:00",
+                "airline": "CA",
+                "airline_name": "Air China",
+                "flight_number": "CA817",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 900,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "PVG->ORD": {
+        "offers": [
+          {
+            "id": "mock-intl-pvg-ord-econ-001",
+            "segments": [
+              {
+                "origin": "PVG",
+                "destination": "ORD",
+                "departure_time": "2026-06-15T14:00:00",
+                "arrival_time": "2026-06-15T16:00:00",
+                "airline": "MU",
+                "airline_name": "China Eastern",
+                "flight_number": "MU717",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 850,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "PVG->BOS": {
+        "offers": [
+          {
+            "id": "mock-intl-pvg-bos-econ-001",
+            "segments": [
+              {
+                "origin": "PVG",
+                "destination": "BOS",
+                "departure_time": "2026-06-15T17:00:00",
+                "arrival_time": "2026-06-15T21:00:00",
+                "airline": "HU",
+                "airline_name": "Hainan Airlines",
+                "flight_number": "HU7961",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 880,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "HGH->JFK": {
+        "offers": [
+          {
+            "id": "mock-intl-hgh-jfk-econ-001",
+            "segments": [
+              {
+                "origin": "HGH",
+                "destination": "JFK",
+                "departure_time": "2026-06-15T18:00:00",
+                "arrival_time": "2026-06-15T21:00:00",
+                "airline": "HU",
+                "airline_name": "Hainan Airlines",
+                "flight_number": "HU7915",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 790,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "NKG->JFK": {
+        "offers": [
+          {
+            "id": "mock-intl-nkg-jfk-econ-001",
+            "segments": [
+              {
+                "origin": "NKG",
+                "destination": "JFK",
+                "departure_time": "2026-06-15T16:30:00",
+                "arrival_time": "2026-06-15T19:30:00",
+                "airline": "MU",
+                "airline_name": "China Eastern",
+                "flight_number": "MU2855",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 860,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "PEK->JFK": {
+        "offers": [
+          {
+            "id": "mock-intl-pek-jfk-econ-001",
+            "segments": [
+              {
+                "origin": "PEK",
+                "destination": "JFK",
+                "departure_time": "2026-06-15T14:00:00",
+                "arrival_time": "2026-06-15T17:00:00",
+                "airline": "CA",
+                "airline_name": "Air China",
+                "flight_number": "CA981",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 780,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "PEK->ORD": {
+        "offers": [
+          {
+            "id": "mock-intl-pek-ord-econ-001",
+            "segments": [
+              {
+                "origin": "PEK",
+                "destination": "ORD",
+                "departure_time": "2026-06-15T17:00:00",
+                "arrival_time": "2026-06-15T19:00:00",
+                "airline": "UA",
+                "airline_name": "United Airlines",
+                "flight_number": "UA850",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 800,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "PEK->BOS": {
+        "offers": [
+          {
+            "id": "mock-intl-pek-bos-econ-001",
+            "segments": [
+              {
+                "origin": "PEK",
+                "destination": "BOS",
+                "departure_time": "2026-06-15T14:00:00",
+                "arrival_time": "2026-06-15T20:00:00",
+                "airline": "HU",
+                "airline_name": "Hainan Airlines",
+                "flight_number": "HU481",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 850,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "CAN->JFK": {
+        "offers": [
+          {
+            "id": "mock-intl-can-jfk-econ-001",
+            "segments": [
+              {
+                "origin": "CAN",
+                "destination": "JFK",
+                "departure_time": "2026-06-16T01:00:00",
+                "arrival_time": "2026-06-16T05:00:00",
+                "airline": "CZ",
+                "airline_name": "China Southern",
+                "flight_number": "CZ699",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 720,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "CAN->ORD": {
+        "offers": [
+          {
+            "id": "mock-intl-can-ord-econ-001",
+            "segments": [
+              {
+                "origin": "CAN",
+                "destination": "ORD",
+                "departure_time": "2026-06-15T23:00:00",
+                "arrival_time": "2026-06-16T02:00:00",
+                "airline": "CZ",
+                "airline_name": "China Southern",
+                "flight_number": "CZ437",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 760,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "HKG->JFK": {
+        "offers": [
+          {
+            "id": "mock-intl-hkg-jfk-econ-001",
+            "segments": [
+              {
+                "origin": "HKG",
+                "destination": "JFK",
+                "departure_time": "2026-06-15T10:00:00",
+                "arrival_time": "2026-06-15T14:00:00",
+                "airline": "CX",
+                "airline_name": "Cathay Pacific",
+                "flight_number": "CX830",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 680,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "HKG->ORD": {
+        "offers": [
+          {
+            "id": "mock-intl-hkg-ord-econ-001",
+            "segments": [
+              {
+                "origin": "HKG",
+                "destination": "ORD",
+                "departure_time": "2026-06-15T11:00:00",
+                "arrival_time": "2026-06-15T14:00:00",
+                "airline": "CX",
+                "airline_name": "Cathay Pacific",
+                "flight_number": "CX806",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 710,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "TFU->LAX": {
+        "offers": [
+          {
+            "id": "mock-intl-tfu-lax-econ-001",
+            "segments": [
+              {
+                "origin": "TFU",
+                "destination": "LAX",
+                "departure_time": "2026-06-15T21:00:00",
+                "arrival_time": "2026-06-15T19:00:00",
+                "airline": "3U",
+                "airline_name": "Sichuan Airlines",
+                "flight_number": "3U3831",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 820,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "PVG->LAX": {
+        "offers": [
+          {
+            "id": "mock-intl-pvg-lax-econ-001",
+            "segments": [
+              {
+                "origin": "PVG",
+                "destination": "LAX",
+                "departure_time": "2026-06-15T17:30:00",
+                "arrival_time": "2026-06-15T14:00:00",
+                "airline": "MU",
+                "airline_name": "China Eastern",
+                "flight_number": "MU583",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 750,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "PVG->SFO": {
+        "offers": [
+          {
+            "id": "mock-intl-pvg-sfo-econ-001",
+            "segments": [
+              {
+                "origin": "PVG",
+                "destination": "SFO",
+                "departure_time": "2026-06-15T17:00:00",
+                "arrival_time": "2026-06-15T13:00:00",
+                "airline": "UA",
+                "airline_name": "United Airlines",
+                "flight_number": "UA858",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 800,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "PEK->SEA": {
+        "offers": [
+          {
+            "id": "mock-intl-pek-sea-econ-001",
+            "segments": [
+              {
+                "origin": "PEK",
+                "destination": "SEA",
+                "departure_time": "2026-06-15T16:00:00",
+                "arrival_time": "2026-06-15T12:00:00",
+                "airline": "HU",
+                "airline_name": "Hainan Airlines",
+                "flight_number": "HU495",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 760,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "PEK->SFO": {
+        "offers": [
+          {
+            "id": "mock-intl-pek-sfo-econ-001",
+            "segments": [
+              {
+                "origin": "PEK",
+                "destination": "SFO",
+                "departure_time": "2026-06-15T16:00:00",
+                "arrival_time": "2026-06-15T12:00:00",
+                "airline": "UA",
+                "airline_name": "United Airlines",
+                "flight_number": "UA889",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 780,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "XMN->JFK": {
+        "offers": [
+          {
+            "id": "mock-intl-xmn-jfk-econ-001",
+            "segments": [
+              {
+                "origin": "XMN",
+                "destination": "JFK",
+                "departure_time": "2026-06-15T20:00:00",
+                "arrival_time": "2026-06-16T01:00:00",
+                "airline": "MF",
+                "airline_name": "Xiamen Airlines",
+                "flight_number": "MF849",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 830,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "XMN->ORD": {
+        "offers": [
+          {
+            "id": "mock-intl-xmn-ord-econ-001",
+            "segments": [
+              {
+                "origin": "XMN",
+                "destination": "ORD",
+                "departure_time": "2026-06-15T19:00:00",
+                "arrival_time": "2026-06-15T22:00:00",
+                "airline": "MF",
+                "airline_name": "Xiamen Airlines",
+                "flight_number": "MF827",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 880,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_intl_direct",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      }
+    },
+    "domestic_us": {
+      "JFK->PIT": {
+        "offers": [
+          {
+            "id": "mock-dom-jfk-pit-econ-001",
+            "segments": [
+              {
+                "origin": "JFK",
+                "destination": "PIT",
+                "departure_time": "2026-06-16T08:00:00",
+                "arrival_time": "2026-06-16T09:30:00",
+                "airline": "DL",
+                "airline_name": "Delta Air Lines",
+                "flight_number": "DL5123",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 180,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          },
+          {
+            "id": "mock-dom-jfk-pit-econ-002",
+            "segments": [
+              {
+                "origin": "JFK",
+                "destination": "PIT",
+                "departure_time": "2026-06-16T10:00:00",
+                "arrival_time": "2026-06-16T11:30:00",
+                "airline": "AA",
+                "airline_name": "American Airlines",
+                "flight_number": "AA4301",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 195,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "EWR->PIT": {
+        "offers": [
+          {
+            "id": "mock-dom-ewr-pit-econ-001",
+            "segments": [
+              {
+                "origin": "EWR",
+                "destination": "PIT",
+                "departure_time": "2026-06-16T09:00:00",
+                "arrival_time": "2026-06-16T10:30:00",
+                "airline": "UA",
+                "airline_name": "United Airlines",
+                "flight_number": "UA4432",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 170,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "IAD->PIT": {
+        "offers": [
+          {
+            "id": "mock-dom-iad-pit-econ-001",
+            "segments": [
+              {
+                "origin": "IAD",
+                "destination": "PIT",
+                "departure_time": "2026-06-16T08:30:00",
+                "arrival_time": "2026-06-16T09:45:00",
+                "airline": "UA",
+                "airline_name": "United Airlines",
+                "flight_number": "UA4198",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 160,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "ORD->PIT": {
+        "offers": [
+          {
+            "id": "mock-dom-ord-pit-econ-001",
+            "segments": [
+              {
+                "origin": "ORD",
+                "destination": "PIT",
+                "departure_time": "2026-06-16T07:00:00",
+                "arrival_time": "2026-06-16T09:30:00",
+                "airline": "UA",
+                "airline_name": "United Airlines",
+                "flight_number": "UA3456",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 150,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "PHL->PIT": {
+        "offers": [
+          {
+            "id": "mock-dom-phl-pit-econ-001",
+            "segments": [
+              {
+                "origin": "PHL",
+                "destination": "PIT",
+                "departure_time": "2026-06-16T10:00:00",
+                "arrival_time": "2026-06-16T11:15:00",
+                "airline": "AA",
+                "airline_name": "American Airlines",
+                "flight_number": "AA4872",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 155,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "BOS->PIT": {
+        "offers": [
+          {
+            "id": "mock-dom-bos-pit-econ-001",
+            "segments": [
+              {
+                "origin": "BOS",
+                "destination": "PIT",
+                "departure_time": "2026-06-16T09:00:00",
+                "arrival_time": "2026-06-16T10:45:00",
+                "airline": "B6",
+                "airline_name": "JetBlue",
+                "flight_number": "B62185",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 200,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "DTW->PIT": {
+        "offers": [
+          {
+            "id": "mock-dom-dtw-pit-econ-001",
+            "segments": [
+              {
+                "origin": "DTW",
+                "destination": "PIT",
+                "departure_time": "2026-06-16T08:00:00",
+                "arrival_time": "2026-06-16T09:00:00",
+                "airline": "DL",
+                "airline_name": "Delta Air Lines",
+                "flight_number": "DL3891",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 140,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "JFK->BOS": {
+        "offers": [
+          {
+            "id": "mock-dom-jfk-bos-econ-001",
+            "segments": [
+              {
+                "origin": "JFK",
+                "destination": "BOS",
+                "departure_time": "2026-06-16T09:00:00",
+                "arrival_time": "2026-06-16T10:00:00",
+                "airline": "DL",
+                "airline_name": "Delta",
+                "flight_number": "DL5851",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 160,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "EWR->BOS": {
+        "offers": [
+          {
+            "id": "mock-dom-ewr-bos-econ-001",
+            "segments": [
+              {
+                "origin": "EWR",
+                "destination": "BOS",
+                "departure_time": "2026-06-16T09:00:00",
+                "arrival_time": "2026-06-16T10:00:00",
+                "airline": "UA",
+                "airline_name": "United",
+                "flight_number": "UA3461",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 155,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "ORD->BOS": {
+        "offers": [
+          {
+            "id": "mock-dom-ord-bos-econ-001",
+            "segments": [
+              {
+                "origin": "ORD",
+                "destination": "BOS",
+                "departure_time": "2026-06-16T07:00:00",
+                "arrival_time": "2026-06-16T10:00:00",
+                "airline": "UA",
+                "airline_name": "United",
+                "flight_number": "UA2341",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 150,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "JFK->PHL": {
+        "offers": [
+          {
+            "id": "mock-dom-jfk-phl-econ-001",
+            "segments": [
+              {
+                "origin": "JFK",
+                "destination": "PHL",
+                "departure_time": "2026-06-16T08:00:00",
+                "arrival_time": "2026-06-16T09:00:00",
+                "airline": "AA",
+                "airline_name": "American",
+                "flight_number": "AA4567",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 150,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "ORD->STL": {
+        "offers": [
+          {
+            "id": "mock-dom-ord-stl-econ-001",
+            "segments": [
+              {
+                "origin": "ORD",
+                "destination": "STL",
+                "departure_time": "2026-06-16T08:00:00",
+                "arrival_time": "2026-06-16T09:00:00",
+                "airline": "UA",
+                "airline_name": "United",
+                "flight_number": "UA5612",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 150,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "ORD->MSP": {
+        "offers": [
+          {
+            "id": "mock-dom-ord-msp-econ-001",
+            "segments": [
+              {
+                "origin": "ORD",
+                "destination": "MSP",
+                "departure_time": "2026-06-16T08:00:00",
+                "arrival_time": "2026-06-16T09:30:00",
+                "airline": "DL",
+                "airline_name": "Delta",
+                "flight_number": "DL2210",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 155,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "SEA->PDX": {
+        "offers": [
+          {
+            "id": "mock-dom-sea-pdx-econ-001",
+            "segments": [
+              {
+                "origin": "SEA",
+                "destination": "PDX",
+                "departure_time": "2026-06-16T08:00:00",
+                "arrival_time": "2026-06-16T09:00:00",
+                "airline": "AS",
+                "airline_name": "Alaska",
+                "flight_number": "AS2010",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 120,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      },
+      "LAX->SJC": {
+        "offers": [
+          {
+            "id": "mock-dom-lax-sjc-econ-001",
+            "segments": [
+              {
+                "origin": "LAX",
+                "destination": "SJC",
+                "departure_time": "2026-06-16T08:00:00",
+                "arrival_time": "2026-06-16T09:00:00",
+                "airline": "WN",
+                "airline_name": "Southwest",
+                "flight_number": "WN3210",
+                "cabin": "economy"
+              }
+            ],
+            "total_price_usd": 110,
+            "currency": "USD",
+            "provider": "mock",
+            "source": "mock_domestic",
+            "booking_available": true,
+            "baggage_included": true,
+            "refundable": false
+          }
+        ]
+      }
+    },
+    "domestic_cn": {
+      "NGB->PVG": {
+        "access_estimate_only": true,
+        "estimated_cost_usd": 35,
+        "mode": "train/car",
+        "note": "高铁约1.5小时到上海虹桥，再转地铁/出租车到浦东机场"
+      },
+      "NGB->SHA": {
+        "access_estimate_only": true,
+        "estimated_cost_usd": 35,
+        "mode": "train/car",
+        "note": "高铁到上海虹桥站，紧邻SHA机场"
+      },
+      "NGB->HGH": {
+        "access_estimate_only": true,
+        "estimated_cost_usd": 25,
+        "mode": "train/car",
+        "note": "高铁约1小时到杭州东站，再转地铁到萧山机场"
+      },
+      "NGB->NKG": {
+        "access_estimate_only": true,
+        "estimated_cost_usd": 40,
+        "mode": "train/car",
+        "note": "高铁约2小时到南京南站，再转地铁到禄口机场"
+      },
+      "HGH->PVG": {
+        "access_estimate_only": true,
+        "estimated_cost_usd": 25,
+        "mode": "train/car",
+        "note": "高铁约1小时到上海"
+      },
+      "NKG->PVG": {
+        "access_estimate_only": true,
+        "estimated_cost_usd": 40,
+        "mode": "train/car",
+        "note": "高铁约2小时到上海"
+      },
+      "XMN->PVG": {
+        "access_estimate_only": true,
+        "estimated_cost_usd": 100,
+        "mode": "domestic_flight",
+        "note": "厦航/东航直飞上海约2小时"
+      },
+      "FOC->PVG": {
+        "access_estimate_only": true,
+        "estimated_cost_usd": 110,
+        "mode": "domestic_flight",
+        "note": "福州飞上海约2.5小时"
+      },
+      "WUH->PVG": {
+        "access_estimate_only": true,
+        "estimated_cost_usd": 110,
+        "mode": "domestic_flight",
+        "note": "武汉飞上海约2.5小时"
+      },
+      "XIY->PEK": {
+        "access_estimate_only": true,
+        "estimated_cost_usd": 130,
+        "mode": "domestic_flight",
+        "note": "西安飞北京约2.5小时"
+      },
+      "TAO->PVG": {
+        "access_estimate_only": true,
+        "estimated_cost_usd": 120,
+        "mode": "domestic_flight",
+        "note": "青岛飞上海约2.5小时"
+      },
+      "SZX->HKG": {
+        "access_estimate_only": true,
+        "estimated_cost_usd": 40,
+        "mode": "ferry/bus",
+        "note": "深圳到香港机场口岸过关+巴士约2小时"
+      }
+    }
+  }
+}

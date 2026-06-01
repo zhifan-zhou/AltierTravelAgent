@@ -1,0 +1,10 @@
+{"id": "pe001", "query": "温州到匹兹堡，可以从上海走，越便宜越好", "expected_profile": "cheapest"}
+{"id": "pe002", "query": "宁波到纽约，可以从上海走", "expected_profile": "balanced"}
+{"id": "pe003", "query": "杭州到波士顿，也可以从上海飞", "expected_profile": "balanced"}
+{"id": "pe004", "query": "上海到匹兹堡，不要折腾", "expected_profile": "low_risk"}
+{"id": "pe005", "query": "南京到匹兹堡，主流航司优先", "expected_profile": "airline_priority"}
+{"id": "pe006", "query": "PVG到PIT，时间短一点", "expected_profile": "fastest"}
+{"id": "pe007", "query": "NGB飞PIT，只要便宜", "expected_profile": "cheapest"}
+{"id": "pe008", "query": "温州到匹兹堡，不要廉航", "expected_profile": "airline_priority"}
+{"id": "pe009", "query": "宁波到匹兹堡，少折腾", "expected_profile": "low_risk"}
+{"id": "pe010", "query": "香港到纽约，商务舱，主流航司优先", "expected_profile": "airline_priority"}

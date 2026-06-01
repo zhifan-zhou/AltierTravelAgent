@@ -1,0 +1,41 @@
+{"id": "e001", "query": "NGB飞PIT", "expected_origin": "宁波", "expected_dest": "匹兹堡", "tags": ["airport_code"]}
+{"id": "e002", "query": "HK to JFK", "expected_origin": "香港", "expected_dest": "纽约", "tags": ["mixed_english", "airport_code"]}
+{"id": "e003", "query": "Shanghai to Pittsburgh", "expected_origin": "上海", "expected_dest": "匹兹堡", "tags": ["english"]}
+{"id": "e004", "query": "杭州 to BOS", "expected_origin": "杭州", "expected_dest": "波士顿", "tags": ["mixed_english", "airport_code"]}
+{"id": "e005", "query": "温州到匹兹堡，可以从上海走", "expected_origin": "温州", "expected_dest": "匹兹堡", "tags": ["nearby", "wnz"]}
+{"id": "e006", "query": "宁波到纽约，越便宜越好", "expected_origin": "宁波", "expected_dest": "纽约", "tags": ["cheap", "origin_side"]}
+{"id": "e007", "query": "上海到匹兹堡，不要折腾", "expected_origin": "上海", "expected_dest": "匹兹堡", "tags": ["reject_nearby"]}
+{"id": "e008", "query": "PVG-JFK，只要直飞", "expected_origin": "上海", "expected_dest": "纽约", "tags": ["reject_nearby", "airport_code"]}
+{"id": "e009", "query": "我要从宁波飞匹兹堡，便宜点，可以从上海走，也可以纽约或者华盛顿转", "expected_origin": "宁波", "expected_dest": "匹兹堡", "tags": ["nearby", "cheap", "classic"]}
+{"id": "e010", "query": "杭州到波士顿，越便宜越好，接受转机", "expected_origin": "杭州", "expected_dest": "波士顿", "tags": ["cheap", "nearby"]}
+{"id": "e011", "query": "南京到纽约，不想太折腾，最好少转机", "expected_origin": "南京", "expected_dest": "纽约", "tags": ["safe", "origin_side"]}
+{"id": "e012", "query": "深圳到芝加哥，可以从附近城市走", "expected_origin": "深圳", "expected_dest": "芝加哥", "tags": ["nearby"]}
+{"id": "e013", "query": "成都飞洛杉矶，经济舱，越便宜越好", "expected_origin": "成都", "expected_dest": "洛杉矶", "tags": ["cheap"]}
+{"id": "e014", "query": "北京飞西雅图，商务舱", "expected_origin": "北京", "expected_dest": "西雅图", "tags": ["business"]}
+{"id": "e015", "query": "上海到匹兹堡，经济舱", "expected_origin": "上海", "expected_dest": "匹兹堡", "tags": ["dest_side"]}
+{"id": "e016", "query": "广州到波士顿，可以接受纽约转，也可以芝加哥转", "expected_origin": "广州", "expected_dest": "波士顿", "tags": ["nearby"]}
+{"id": "e017", "query": "厦门飞费城，开学返校，带两个行李箱", "expected_origin": "厦门", "expected_dest": "费城", "tags": ["family_friendly"]}
+{"id": "e018", "query": "青岛飞华盛顿，越便宜越好，可以从其他城市出发", "expected_origin": "青岛", "expected_dest": "华盛顿", "tags": ["cheap", "nearby"]}
+{"id": "e019", "query": "NGB飞PIT，省钱第一", "expected_origin": "宁波", "expected_dest": "匹兹堡", "tags": ["airport_code", "cheap"]}
+{"id": "e020", "query": "从北京出发到芝加哥，最好又快又便宜", "expected_origin": "北京", "expected_dest": "芝加哥", "tags": ["cheap", "fast"]}
+{"id": "e021", "query": "上海飞旧金山，第一次出国读书，希望靠谱安全", "expected_origin": "上海", "expected_dest": "旧金山", "tags": ["safe"]}
+{"id": "e022", "query": "香港到纽约，便宜就好", "expected_origin": "香港", "expected_dest": "纽约", "tags": ["cheap"]}
+{"id": "e023", "query": "武汉飞波士顿，可以接受转机", "expected_origin": "武汉", "expected_dest": "波士顿", "tags": ["nearby"]}
+{"id": "e024", "query": "西安飞芝加哥，不想太折腾", "expected_origin": "西安", "expected_dest": "芝加哥", "tags": ["safe"]}
+{"id": "e025", "query": "福州到纽约，暑假开学，便宜点", "expected_origin": "福州", "expected_dest": "纽约", "tags": ["cheap"]}
+{"id": "e026", "query": "杭州飞匹兹堡，可以从上海走，商务舱舒服点", "expected_origin": "杭州", "expected_dest": "匹兹堡", "tags": ["business", "nearby"]}
+{"id": "e027", "query": "南京飞波士顿，明年春季入学", "expected_origin": "南京", "expected_dest": "波士顿", "tags": []}
+{"id": "e028", "query": "深圳飞纽约，经济舱，最便宜就行", "expected_origin": "深圳", "expected_dest": "纽约", "tags": ["cheap"]}
+{"id": "e029", "query": "厦门到洛杉矶，带父母一起，希望舒适安全", "expected_origin": "厦门", "expected_dest": "洛杉矶", "tags": ["family_friendly", "safe", "comfort"]}
+{"id": "e030", "query": "成都飞旧金山，留学生回国", "expected_origin": "成都", "expected_dest": "旧金山", "tags": ["return"]}
+{"id": "e031", "query": "北京飞匹兹堡，想从芝加哥转", "expected_origin": "北京", "expected_dest": "匹兹堡", "tags": ["nearby"]}
+{"id": "e032", "query": "广州飞华盛顿，越便宜越好，不介意转机", "expected_origin": "广州", "expected_dest": "华盛顿", "tags": ["cheap"]}
+{"id": "e033", "query": "重庆飞西雅图，开学季", "expected_origin": "重庆", "expected_dest": "西雅图", "tags": []}
+{"id": "e034", "query": "青岛飞达拉斯，第一次去美国", "expected_origin": "青岛", "expected_dest": "达拉斯", "tags": []}
+{"id": "e035", "query": "NGB to JFK, cheapest economy", "expected_origin": "宁波", "expected_dest": "纽约", "tags": ["english", "cheap", "airport_code"]}
+{"id": "e036", "query": "宁波到圣路易斯，便宜点", "expected_origin": "宁波", "expected_dest": "圣路易斯", "tags": ["cheap"]}
+{"id": "e037", "query": "杭州到明尼阿波利斯，可以从上海走", "expected_origin": "杭州", "expected_dest": "明尼阿波利斯", "tags": ["nearby"]}
+{"id": "e038", "query": "北京飞亚特兰大，便宜商务舱", "expected_origin": "北京", "expected_dest": "亚特兰大", "tags": ["business", "cheap"]}
+{"id": "e039", "query": "南京飞底特律，接受纽约或者芝加哥转机", "expected_origin": "南京", "expected_dest": "底特律", "tags": ["nearby"]}
+{"id": "e040", "query": "Beijing to Seattle, cheapest", "expected_origin": "北京", "expected_dest": "西雅图", "tags": ["english", "cheap"]}
+{"id": "e041", "query": "PVG to ORD, economy", "expected_origin": "上海", "expected_dest": "芝加哥", "tags": ["english", "airport_code"]}
