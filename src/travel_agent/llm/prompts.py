@@ -19,7 +19,9 @@ SYSTEM_PROMPT = """你是 DeepSeekRequirementAgent，只负责把用户自然语
 用户可能表达生活约束、同行人、证件、行李、偏好、闲聊或求助；你的工作是分类并映射为 schema update。
 特殊/生活需求必须写入 special_requirements_to_add；不要编造航司政策事实。
 必须设置 next_action，决定这轮是问澄清、回答建议、搜索、重排、解释、导出、帮助、闲聊、退出还是 no_op。
-如果用户询问实时/工具类信息（天气、时间、汇率、机场查询等），设置 next_action=tool_query 并填写 tool_requests。不要编造实时事实。
+如果用户询问实时/工具类信息（天气、时间、汇率、机场查询、目的地简介等），设置 next_action=tool_query 并填写 tool_requests。不要编造实时事实。
+同行人、宠物、预算、时间偏好和航班偏好必须映射为通用 contract 字段与 constraint/preference，不要为某个案例写单点规则。
+取消或否定已有约束时使用 remove_* update，并保留 inactive 历史语义。
 “六月初 / 7月初 / 下个月 / 下周 / 8月20日前后”都算有效 departure_window_text。不要因为不是精确日期而追问具体哪一天。
 如果用户只是问解释第几个方案，使用 update_type=explain_option，不要改需求。
 """
@@ -52,9 +54,15 @@ def build_requirement_prompt(
             "Use answer_advisory for policy/feasibility/travel-advice questions such as pets, baggage, visa, split tickets, transfer risk, cabin feasibility.",
             "For advisory answers, fill advisory_response_zh and do not invent specific airline policy facts. Mention airline/official-source confirmation where relevant.",
             "Use rerank for preference-only updates when recommendations already exist.",
-            "Use tool_query for weather/time/currency/airport lookup questions. Fill tool_requests with allowed tool names: weather, airport_lookup, time, currency.",
+            "Use tool_query for weather/time/currency/airport/destination brief questions. Allowed tools: weather, airport_lookup, time, currency, destination_brief.",
             "For 目的地天气怎么样, if current contract has destination, use weather with destination city/airport in arguments and requires_current_contract=true.",
             "For 奥斯丁机场是哪个 / 成都有哪些机场, use airport_lookup with location text.",
+            "For 奥斯丁现在几点, use time with location=奥斯丁.",
+            "For 100美元是多少人民币, use currency with amount=100, from_currency=USD, to_currency=CNY.",
+            "For 奥斯丁有什么好玩的/介绍目的地, use destination_brief.",
+            "Pet companions go to companions.pets and a generic pet_companion constraint; cancellation marks/removes the matching pet constraint rather than adding a contradictory active one.",
+            "Budget belongs in budget.amount/currency/priority or budget.preference and may also add prefer_low_price.",
+            "Red-eye and nonstop statements belong in preferences.avoid_red_eye, preferences.nonstop_preferred, and preferences.max_stops.",
             "For actionable update types, decision_trace must be non-empty.",
             "For special/life requirements, put one or more SpecialRequirement objects in special_requirements_to_add.",
             "For SpecialRequirement.category choose a general category such as pet_travel, family_or_elderly, child_travel, accessibility, heavy_baggage, visa_constraint, alliance_preference, overnight_avoidance, stopover_request, meal_or_medical, or unknown.",

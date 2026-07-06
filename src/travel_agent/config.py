@@ -69,7 +69,9 @@ def load_settings() -> Settings:
         enable_tools=os.getenv("ENABLE_TOOLS", "true").strip().lower() not in {"0", "false", "no", "off"},
         enabled_tools=tuple(
             item.strip()
-            for item in os.getenv("ENABLED_TOOLS", "weather,airport_lookup,time,currency").split(",")
+            for item in os.getenv(
+                "ENABLED_TOOLS", "weather,airport_lookup,time,currency,destination_brief"
+            ).split(",")
             if item.strip()
         ),
         data_dir=Path(os.getenv("TRAVEL_AGENT_DATA_DIR", root / "src" / "travel_agent" / "data")),

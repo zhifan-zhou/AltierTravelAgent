@@ -227,7 +227,11 @@ class DisplayService:
             chunks.append(self._recommendation_card(rec, idx, contract))
         if len(guarded) > 3:
             chunks.append(self._remaining_recommendations_table(guarded[3:5], start_index=4, contract=contract))
-        if any(rec.itinerary.has_estimated_data for rec in guarded[:5]):
+        if any(
+            offer.source.startswith("mock")
+            for rec in guarded[:5]
+            for offer in rec.itinerary.offers
+        ):
             chunks.append(self.mock_warning_panel())
         return "\n\n".join(chunk for chunk in chunks if chunk)
 
@@ -310,8 +314,8 @@ class DisplayService:
     def mock_warning_panel(self) -> str:
         body = "\n".join(
             [
-                "部分价格为 mock fallback 估算，仅用于 workflow demo，不是真实市场报价。",
-                "真实上线时需要接入实时航班 API 并在下单前重新验价。",
+                "以下是演示航班数据，不代表真实价格或可预订结果。",
+                "mock/demo 航班不可下单、不可锁价；部分 mock fallback 数值仅用于验证 workflow。",
             ]
         )
         return self._panel("⚠ 数据说明", body, border_style="yellow")

@@ -42,7 +42,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_combined_ota",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           },
@@ -84,7 +84,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_combined_ota",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": true
           }
@@ -120,7 +120,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_combined_ota",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -156,7 +156,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_combined_ota",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -182,7 +182,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -208,7 +208,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -234,7 +234,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -270,7 +270,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_combined_ota",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -296,7 +296,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -332,7 +332,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -368,7 +368,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_combined_ota",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -396,7 +396,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           },
@@ -418,7 +418,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           },
@@ -440,7 +440,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_business",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": true
           }
@@ -466,7 +466,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -492,7 +492,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -518,7 +518,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -544,7 +544,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -570,7 +570,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -596,7 +596,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -622,7 +622,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -648,7 +648,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -674,7 +674,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -700,7 +700,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -726,7 +726,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -752,7 +752,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -778,7 +778,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -804,7 +804,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -830,7 +830,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -856,7 +856,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -882,7 +882,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -908,7 +908,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -934,7 +934,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -960,7 +960,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_intl_direct",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -988,7 +988,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           },
@@ -1010,7 +1010,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -1036,7 +1036,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -1062,7 +1062,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -1088,7 +1088,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -1114,7 +1114,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -1140,7 +1140,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -1166,7 +1166,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -1192,7 +1192,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -1218,7 +1218,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -1244,7 +1244,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -1270,7 +1270,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -1296,7 +1296,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -1322,7 +1322,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -1348,7 +1348,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }
@@ -1374,7 +1374,7 @@
             "currency": "USD",
             "provider": "mock",
             "source": "mock_domestic",
-            "booking_available": true,
+            "booking_available": false,
             "baggage_included": true,
             "refundable": false
           }

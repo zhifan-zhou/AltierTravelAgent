@@ -1,12 +1,10 @@
 # AltierTravelAgent
 
-LLM-first travel agent MVP for conversational trip planning.
+LLM-first Travel Agent MVP for conversational trip planning. v0.2 keeps the existing contract pipeline and adds real/free public-data adapters, a robust unified tool layer, richer constraints, debug diagnostics, and dialogue evals.
 
-## Status
+This is not a model-training project. It does not use a GPU and does not book, pay, ticket, hold, or lock prices.
 
-AltierTravelAgent is an MVP / research prototype / demo project. It focuses on a contract-based travel-planning loop rather than model training, booking, payment, or production flight inventory.
-
-## Core Pipeline
+## Pipeline
 
 ```text
 User input
@@ -19,19 +17,36 @@ User input
 → CLI response
 ```
 
-## Features
+## v0.2 capabilities
 
-- Conversational CLI for trip-planning turns
-- DeepSeek-backed LLM schema extraction
-- Route understanding with `RouteSemanticValidator`
-- Local airport lookup through `AirportService`
-- Contract-based state management and merge logic
-- `ToolRouter` with an MCP-ready local tool layer for non-flight actions
-- Weather, time, and currency tools implemented as safe local stubs
-- Mock/demo flight search for deterministic development and tests
-- Focused pytest suite and final acceptance script
+- DeepSeek-backed structured contract updates with deterministic validation and normalization
+- Open-Meteo geocoding and live weather forecasts (no API key)
+- Frankfurter currency conversion/reference rates (no API key)
+- Local time resolution using Open-Meteo timezone metadata plus Python `zoneinfo`
+- Local airport lookup and optional Wikivoyage destination briefs
+- Unified `ToolRequest` / `ToolResult` metadata: status, source, fetched time, live/mock flags, and sanitized error code
+- External-call timeout, at most two retries, exponential backoff, in-memory TTL cache, and light rate limiting
+- General companions/pets, budget, time, and flight preferences with active/inactive constraint history
+- Multi-turn pending-question state and structured eval dialogues
+- Developer-only `chat --debug` diagnostics
 
-## Installation
+## Live data and demo data
+
+| Capability | Source | Classification |
+|---|---|---|
+| Geocoding | Open-Meteo | live public API |
+| Weather | Open-Meteo | live/forecast public API |
+| Currency | Frankfurter | latest available reference rate |
+| Local time | Python `zoneinfo` using geocoded timezone | live local calculation |
+| Airport lookup | bundled airport file | local static data |
+| Destination brief | Wikivoyage/Wikimedia | attributed public content |
+| Flight search/prices | bundled mock provider | mock/demo only |
+
+Flight results are always labeled as demo data. They are not real prices, availability, or bookable inventory.
+
+If an external API times out, rate-limits, returns invalid data, or is unavailable, its tool returns `unavailable`/`error` with no fabricated fallback facts. Missing optional keys never crash the default free adapters.
+
+## Install
 
 ```bash
 git clone https://github.com/zhifan-zhou/AltierTravelAgent.git
@@ -39,56 +54,52 @@ cd AltierTravelAgent
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-## Environment Setup
-
-```bash
 cp .env.example .env
 ```
 
-Then fill in:
+Add a real `DEEPSEEK_API_KEY` to the local `.env` for interactive LLM chat. `.env`, runs, logs, and caches are ignored and must not be committed. Open-Meteo and Frankfurter need no key.
 
-```env
-DEEPSEEK_API_KEY=your_deepseek_api_key_here
-```
-
-The default provider is mock/demo search. Keep `.env` local and do not commit real API keys.
-
-## Run The CLI
+## CLI
 
 ```bash
 PYTHONPATH=src python -m travel_agent.cli chat
-```
-
-For a deterministic mock demo without a real DeepSeek key:
-
-```bash
-PYTHONPATH=src python -m travel_agent.cli search "温州到匹兹堡，六月初，可以从上海走，越便宜越好"
-```
-
-## LLM Check
-
-```bash
+PYTHONPATH=src python -m travel_agent.cli search "温州到匹兹堡，六月初，越便宜越好"
 PYTHONPATH=src python -m travel_agent.cli llm-check --ping
 ```
 
-If no real DeepSeek key is configured, the check will report that the key is missing or the ping failed.
+Developer diagnostics are opt-in and do not appear in normal output:
 
-## Tests
+```bash
+PYTHONPATH=src python -m travel_agent.cli chat --debug
+```
+
+Debug mode shows intent, contract diff, missing fields, next action, tool request, and result metadata. Debug artifacts are written below ignored `runs/` paths.
+
+## Tests and manual smoke
+
+The test suite injects fake HTTP transports and never requires live network access:
 
 ```bash
 PYTHONPATH=src python -m pytest tests/ -v
 PYTHONPATH=src python scripts/final_codex_acceptance.py
 ```
 
-## Limitations
+Optional real-network smoke test:
 
-- Weather, time, and currency tools are currently safe stubs, not real-time integrations.
-- Flight prices and availability are mock/demo data, not real market quotes.
-- There is no booking, ticketing, payment, or passenger-data vault support.
-- There is no production-grade web UI yet.
-- Visa, border-entry, disruption, and fare-rule handling are not production-grade.
+```bash
+PYTHONPATH=src python scripts/smoke_real_tools.py
+```
+
+Network failure is reported clearly and is never converted into fake success.
+
+## Safety and limitations
+
+- Flight price search remains mock/demo unless a real provider is explicitly added in the future.
+- No booking, payment, ticketing, price lock, passenger document submission, or airline-site scraping.
+- No production web UI.
+- Public APIs may fail, change, or rate-limit requests.
+- Currency output is conversion data, not financial advice; all travel results are not travel/legal advice.
+- Airline, visa, border, baggage, pet, and accessibility policies require official-source confirmation.
 
 ## License
 

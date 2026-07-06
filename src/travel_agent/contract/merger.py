@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel, ValidationError
 
 from travel_agent.contract.models import (
     ConstraintItem,
+    PetCompanion,
     PreferenceItem,
     SpecialRequirement,
     TravelRequirementContract,
@@ -31,6 +33,7 @@ LIST_APPEND_PATHS = {
     ("constraints", "hard_constraints"),
     ("constraints", "soft_preferences"),
     ("special_requirements",),
+    ("companions", "pets"),
 }
 
 PROTECTED_MODIFY_PATHS = {
@@ -91,6 +94,10 @@ class ContractMerger:
         self._remove_preferences(next_contract, update.preferences_to_remove)
         self._remove_special_requirements(next_contract, update.special_requirements_to_remove)
         self._coerce_contract_lists(next_contract)
+        self._sync_companion_cancellations(
+            next_contract,
+            [*update.constraints_to_remove, *update.special_requirements_to_remove],
+        )
         self._sync_constraints_to_fields(next_contract)
         self._sync_preferences_to_fields(next_contract, update.preferences_to_add)
         self._apply_special_requirement_effects(next_contract)
@@ -150,27 +157,23 @@ class ContractMerger:
         if not removals:
             return
         removal_set = {str(item).lower() for item in removals}
-        kept: list[ConstraintItem] = []
         for item in contract.constraints.hard_constraints:
-            values = {str(item.value).lower(), item.type.lower(), item.reason.lower()}
+            values = {item.id.lower(), str(item.value).lower(), item.type.lower(), item.reason.lower(), item.category.lower()}
             values.update(str(v).lower() for v in item.normalized_values)
             if values & removal_set:
-                continue
-            kept.append(item)
-        contract.constraints.hard_constraints = kept
+                item.active = False
+                item.updated_at = datetime.now(UTC)
 
     def _remove_preferences(self, contract: TravelRequirementContract, removals: list[str]) -> None:
         if not removals:
             return
         removal_set = {str(item).lower() for item in removals}
-        kept: list[PreferenceItem] = []
         for item in contract.constraints.soft_preferences:
-            values = {str(item.value).lower(), item.type.lower()}
+            values = {item.id.lower(), str(item.value).lower(), item.type.lower()}
             values.update(str(v).lower() for v in item.normalized_values)
             if values & removal_set:
-                continue
-            kept.append(item)
-        contract.constraints.soft_preferences = kept
+                item.active = False
+                item.updated_at = datetime.now(UTC)
 
     def _remove_special_requirements(
         self,
@@ -180,7 +183,6 @@ class ContractMerger:
         if not removals:
             return
         removal_set = {str(item).lower() for item in removals}
-        kept: list[SpecialRequirement] = []
         for item in contract.special_requirements:
             values = {
                 item.category.lower(),
@@ -189,9 +191,20 @@ class ContractMerger:
             }
             values.update(str(v).lower() for v in item.structured_values.values())
             if values & removal_set:
-                continue
-            kept.append(item)
-        contract.special_requirements = kept
+                item.active = False
+
+    def _sync_companion_cancellations(
+        self,
+        contract: TravelRequirementContract,
+        removals: list[str],
+    ) -> None:
+        removal_set = {str(item).strip().casefold() for item in removals}
+        pet_markers = {"pet", "pets", "pet_travel", "pet_companion", "dog", "狗", "宠物"}
+        if not removal_set & pet_markers:
+            return
+        for pet in contract.companions.pets:
+            if pet.kind.casefold() in removal_set or removal_set & pet_markers:
+                pet.active = False
 
     def _coerce_contract_lists(self, contract: TravelRequirementContract) -> None:
         contract.constraints.hard_constraints = coerce_model_list(
@@ -212,6 +225,12 @@ class ContractMerger:
             "contract.special_requirements",
             self.diagnostics,
         )
+        contract.companions.pets = coerce_model_list(
+            contract.companions.pets,
+            PetCompanion,
+            "contract.companions.pets",
+            self.diagnostics,
+        )
 
     def _sync_constraints_to_fields(self, contract: TravelRequirementContract) -> None:
         for item in contract.constraints.hard_constraints:
@@ -229,6 +248,28 @@ class ContractMerger:
             elif item.type == "no_split_ticket":
                 contract.ticketing.split_ticket_policy = "avoid"
                 contract.ticketing.allow_self_transfer = False
+            elif item.type == "max_budget":
+                if isinstance(item.value, dict):
+                    contract.budget.amount = item.value.get("amount", contract.budget.amount)
+                    contract.budget.currency = item.value.get("currency", contract.budget.currency)
+                elif isinstance(item.value, (int, float)):
+                    contract.budget.amount = float(item.value)
+                contract.budget.priority = item.priority
+            elif item.type == "pet_companion":
+                kind = str(item.value or "pet")
+                if not any(pet.kind.casefold() == kind.casefold() and pet.active for pet in contract.companions.pets):
+                    contract.companions.pets.append(
+                        PetCompanion(kind=kind, active=True, source=item.source)
+                    )
+            elif item.type == "avoid_red_eye":
+                contract.preferences.avoid_red_eye = True
+            elif item.type == "nonstop_preferred":
+                contract.preferences.nonstop_preferred = True
+            elif item.type == "max_stops":
+                try:
+                    contract.preferences.max_stops = int(item.value)
+                except (TypeError, ValueError):
+                    pass
 
     def _sync_preferences_to_fields(
         self,
@@ -254,18 +295,40 @@ class ContractMerger:
             elif item.type == "prefer_short_time":
                 contract.ranking.profile = "fastest"
                 contract.ranking.time_priority = item.weight_hint
+            elif item.type == "prefer_nonstop":
+                contract.preferences.nonstop_preferred = True
+                contract.preferences.max_stops = 0
+            elif item.type == "avoid_red_eye":
+                contract.preferences.avoid_red_eye = True
+            elif item.type == "departure_time":
+                contract.preferences.departure_time_preference = str(item.value)
+            elif item.type == "arrival_time":
+                contract.preferences.arrival_time_preference = str(item.value)
 
     def _apply_special_requirement_effects(self, contract: TravelRequirementContract) -> None:
         effects = self.special_interpreter.interpret(contract.special_requirements)
+        active_constraints = {item.type for item in contract.constraints.hard_constraints if item.active}
+        active_preferences = {item.type for item in contract.constraints.soft_preferences if item.active}
         if effects.avoid_self_transfer:
             contract.ticketing.split_ticket_policy = "avoid"
             contract.ticketing.allow_self_transfer = False
+        elif "no_split_ticket" not in active_constraints:
+            contract.ticketing.split_ticket_policy = "allow"
+            contract.ticketing.allow_self_transfer = True
         if effects.avoid_complex_transfers:
             contract.hub_policy.avoid_complex_transfers = True
+        elif "prefer_low_risk" not in active_preferences:
+            contract.hub_policy.avoid_complex_transfers = False
         if effects.risk_weight_adjustment > 0:
             contract.ranking.risk_priority = "high"
+        elif "prefer_low_risk" not in active_preferences:
+            contract.ranking.risk_priority = "medium"
+            if contract.ranking.profile == "low_risk":
+                contract.ranking.profile = "balanced"
         if effects.prefer_full_service_airlines or effects.airline_quality_weight_adjustment > 0:
             contract.airline_preferences.prefer_major_airlines = True
+        elif "prefer_airline" not in active_preferences:
+            contract.airline_preferences.prefer_major_airlines = False
 
     def _handle_explicit_reallows(
         self,

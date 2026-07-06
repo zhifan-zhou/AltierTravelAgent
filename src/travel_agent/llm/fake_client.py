@@ -102,6 +102,24 @@ class FakeRequirementLLM:
                 ack="你问的是天气信息。",
                 requires_current_contract=True,
             )
+        if "几点" in message or "当地时间" in message or "现在时间" in message:
+            location = _extract_known_location(message)
+            return _tool_update(
+                tool_name="time",
+                arguments={"location": location} if location else {},
+                reason="用户询问地点当前时间，需要时区解析。",
+                ack="我来查当地时间。",
+                requires_current_contract=not bool(location),
+            )
+        if _looks_like_currency_query(message):
+            amount, source, target = _currency_arguments(message)
+            return _tool_update(
+                tool_name="currency",
+                arguments={"amount": amount, "from_currency": source, "to_currency": target},
+                reason="用户询问货币换算，需要 Frankfurter 参考汇率。",
+                ack="我来做货币换算。",
+                requires_current_contract=False,
+            )
         if "机场" in message and ("哪个" in message or "哪些" in message):
             location = "奥斯丁" if "奥斯丁" in message or "奥斯汀" in message else "成都" if "成都" in message else ""
             return _tool_update(
@@ -111,8 +129,19 @@ class FakeRequirementLLM:
                 ack="我来查机场信息。",
                 requires_current_contract=not bool(location),
             )
+        if any(token in message for token in ["有什么好玩", "介绍一下", "旅行亮点", "值得注意"]):
+            location = _extract_known_location(message)
+            return _tool_update(
+                tool_name="destination_brief",
+                arguments={"location": location} if location else {},
+                reason="用户询问目的地简介。",
+                ack="我来查一份简短的目的地介绍。",
+                requires_current_contract=not bool(location),
+            )
+        if ("不带" in message or "取消" in message or "算了" in message) and ("狗" in message or "宠物" in message):
+            return _cancel_pet_update(message, self._trace)
         if "狗" in message or "宠物" in message:
-            return _special_update(
+            update = _special_update(
                 message=message,
                 category="pet_travel",
                 description="用户想带狗同行" if "狗" in message else "用户有宠物同行需求",
@@ -128,6 +157,48 @@ class FakeRequirementLLM:
                 ack="已记录：宠物同行。后续会更偏向少转机、低风险、主流航司，并提醒你确认宠物政策。",
                 advisory="可以把宠物同行作为需求记录下来，但是否能进客舱或托运取决于航司、狗狗体型重量、航线和名额。你可以告诉我狗狗大概是小型犬、中型犬还是大型犬？我后续会更偏向少转机、主流航司、低风险的方案，并在推荐里提醒你确认宠物政策。",
                 trace_step="capture_special_requirement",
+            )
+            update["field_updates"] = {
+                "companions": {
+                    "pets": [
+                        {
+                            "kind": "dog" if "狗" in message else "pet",
+                            "count": 1,
+                            "active": True,
+                            "source": "user",
+                        }
+                    ]
+                }
+            }
+            update["constraints_to_add"] = [
+                {
+                    "type": "pet_companion",
+                    "category": "companions",
+                    "value": "dog" if "狗" in message else "pet",
+                    "priority": "high",
+                    "reason": "用户明确提出宠物同行",
+                    "source_user_message": message,
+                    "active": True,
+                }
+            ]
+            return update
+        if "预算" in message:
+            return _budget_update(message, self._trace)
+        if "红眼" in message:
+            return _flight_preference_update(
+                message,
+                field_updates={"preferences": {"avoid_red_eye": True}},
+                preference={"type": "avoid_red_eye", "value": True},
+                ack="已记录：避开红眼航班。",
+                trace=self._trace,
+            )
+        if "不要转机" in message or "不想转机" in message or "直飞" in message:
+            return _flight_preference_update(
+                message,
+                field_updates={"preferences": {"nonstop_preferred": True, "max_stops": 0}},
+                preference={"type": "prefer_nonstop", "value": True},
+                ack="已记录：优先直飞、尽量不转机。",
+                trace=self._trace,
             )
         if "很多行李" in message or "行李" in message:
             return _special_update(
@@ -813,6 +884,169 @@ def _special_update(
         ],
         "confidence": 0.9,
     }
+
+
+def _cancel_pet_update(message: str, trace) -> dict:
+    return {
+        "update_type": "remove_special_requirement",
+        "field_updates": {
+            "companions": {
+                "pets": [
+                    {"kind": "dog" if "狗" in message else "pet", "count": 1, "active": False, "source": "user"}
+                ]
+            }
+        },
+        "constraints_to_add": [],
+        "constraints_to_remove": ["pet_companion", "dog", "pet"],
+        "preferences_to_add": [],
+        "preferences_to_remove": [],
+        "special_requirements_to_add": [],
+        "special_requirements_to_remove": ["pet_travel", "dog", "pet"],
+        "clarification_questions": [],
+        "next_action": "answer_advisory",
+        "user_intent_summary_zh": "用户取消宠物同行约束。",
+        "advisory_response_zh": None,
+        "clarification_question_zh": None,
+        "should_search": False,
+        "should_rerun_search": False,
+        "should_rerank_only": False,
+        "selected_option_index": None,
+        "user_facing_ack_zh": "好的，已取消宠物同行需求。",
+        "reasoning_summary": "将已有宠物相关 constraint 与 special requirement 标记为 inactive。",
+        "decision_trace": trace(
+            "cancel_companion_constraint",
+            f"用户说：{message}",
+            "停用匹配的宠物同行约束，保留历史记录。",
+            ["companions.pets", "constraints.hard_constraints", "special_requirements"],
+        ),
+        "confidence": 0.96,
+    }
+
+
+def _budget_update(message: str, trace) -> dict:
+    match = re.search(r"(\d+(?:\.\d+)?)\s*(美元|美金|人民币|元|欧元|英镑|日元|USD|CNY|EUR|GBP|JPY)?", message, re.I)
+    amount = float(match.group(1)) if match else None
+    currency_aliases = {"美元": "USD", "美金": "USD", "人民币": "CNY", "元": "CNY", "欧元": "EUR", "英镑": "GBP", "日元": "JPY"}
+    currency = currency_aliases.get(match.group(2), (match.group(2) or "").upper()) if match else None
+    budget_update = {"priority": "high", "preference": "lower"}
+    if amount is not None:
+        budget_update["amount"] = amount
+    if currency:
+        budget_update["currency"] = currency
+    return {
+        "update_type": "add_preference",
+        "field_updates": {
+            "budget": budget_update,
+            "ranking": {"profile": "cheapest", "price_priority": "high"},
+        },
+        "constraints_to_add": [],
+        "constraints_to_remove": [],
+        "preferences_to_add": [
+            {
+                "type": "prefer_low_price",
+                "value": "lower_budget",
+                "weight_hint": "high",
+                "source_user_message": message,
+                "active": True,
+            }
+        ],
+        "preferences_to_remove": [],
+        "special_requirements_to_add": [],
+        "special_requirements_to_remove": [],
+        "clarification_questions": [],
+        "next_action": "rerank",
+        "user_intent_summary_zh": "用户补充预算或低价偏好。",
+        "advisory_response_zh": None,
+        "clarification_question_zh": None,
+        "should_search": False,
+        "should_rerun_search": False,
+        "should_rerank_only": True,
+        "selected_option_index": None,
+        "user_facing_ack_zh": "已记录预算与价格优先偏好。",
+        "reasoning_summary": "预算信息映射到通用 budget 与低价 preference。",
+        "decision_trace": trace(
+            "capture_budget",
+            f"用户说：{message}",
+            "更新预算字段并提高价格优先级。",
+            ["budget", "ranking.price_priority"],
+        ),
+        "confidence": 0.92,
+    }
+
+
+def _flight_preference_update(message: str, *, field_updates: dict, preference: dict, ack: str, trace) -> dict:
+    preference = {
+        **preference,
+        "weight_hint": "high",
+        "source_user_message": message,
+        "active": True,
+    }
+    return {
+        "update_type": "add_preference",
+        "field_updates": field_updates,
+        "constraints_to_add": [],
+        "constraints_to_remove": [],
+        "preferences_to_add": [preference],
+        "preferences_to_remove": [],
+        "special_requirements_to_add": [],
+        "special_requirements_to_remove": [],
+        "clarification_questions": [],
+        "next_action": "rerank",
+        "user_intent_summary_zh": "用户补充航班偏好。",
+        "advisory_response_zh": None,
+        "clarification_question_zh": None,
+        "should_search": False,
+        "should_rerun_search": False,
+        "should_rerank_only": True,
+        "selected_option_index": None,
+        "user_facing_ack_zh": ack,
+        "reasoning_summary": "航班偏好映射到通用 preferences。",
+        "decision_trace": trace(
+            "capture_flight_preference",
+            f"用户说：{message}",
+            "更新航班偏好字段。",
+            list(field_updates.keys()),
+        ),
+        "confidence": 0.94,
+    }
+
+
+def _extract_known_location(message: str) -> str:
+    for name in ["奥斯丁", "奥斯汀", "Austin", "成都", "匹兹堡", "温州", "迈阿密", "宁波"]:
+        if name.casefold() in message.casefold():
+            return name
+    return ""
+
+
+def _looks_like_currency_query(message: str) -> bool:
+    return any(token in message.upper() for token in ["USD", "CNY", "EUR", "GBP", "JPY"]) or (
+        any(token in message for token in ["美元", "美金", "人民币", "欧元", "英镑", "日元", "汇率"])
+        and any(token in message for token in ["多少", "换", "汇率", "TO", "to"])
+    )
+
+
+def _currency_arguments(message: str) -> tuple[float, str, str]:
+    amount_match = re.search(r"(\d+(?:\.\d+)?)", message)
+    amount = float(amount_match.group(1)) if amount_match else 1.0
+    aliases = {
+        "美元": "USD",
+        "美金": "USD",
+        "人民币": "CNY",
+        "欧元": "EUR",
+        "英镑": "GBP",
+        "日元": "JPY",
+        "新加坡元": "SGD",
+        "新币": "SGD",
+    }
+    found: list[str] = []
+    upper = message.upper()
+    for alias, code in aliases.items():
+        if alias in message and code not in found:
+            found.append(code)
+    for code in ["USD", "CNY", "EUR", "GBP", "JPY", "SGD"]:
+        if code in upper and code not in found:
+            found.append(code)
+    return amount, found[0] if found else "", found[1] if len(found) > 1 else ""
 
 
 def _extract_option_index(message: str) -> int | None:

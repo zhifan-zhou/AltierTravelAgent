@@ -178,6 +178,7 @@ class LLMFirstChatSession:
         self.contract_snapshots: list[dict] = []
         self.turn_samples: list[dict] = []
         self.last_export_dir: Path | None = None
+        self._debug_previous_contract: dict | None = None
 
     async def handle_user_message(self, message: str) -> ChatTurnResult:
         try:
@@ -187,6 +188,7 @@ class LLMFirstChatSession:
 
     async def _handle_user_message_inner(self, message: str) -> ChatTurnResult:
         previous_contract = self.contract.model_dump(mode="json") if self.contract else None
+        self._debug_previous_contract = previous_contract
         displayed_summary = (
             self.display.recommendations_summary(self.last_result.recommendations)
             if self.last_result
@@ -262,17 +264,33 @@ class LLMFirstChatSession:
             self.last_result = None
             self.displayed_options = []
         self.contract = next_contract
+        self.contract.pending.last_user_intent = update.user_intent_summary_zh or update.update_type
 
         if action == "tool_query":
             output = self._base_output(update)
-            output.extend(self._tool_query_output(update))
+            tool_output, tool_results = self._tool_query_output(update)
+            output.extend(tool_output)
+            self.contract.pending.last_tool_context = {
+                "requests": [request.model_dump(mode="json") for request in update.tool_requests],
+                "results": [result.model_dump(mode="json") for result in tool_results],
+            }
             self._log_turn(previous_contract, update, None, {"ready": self.contract.ready_to_search, "action": action})
             self.history_summary = self.contract.summary_zh()
             message_text = "\n\n".join(part for part in output if part)
             self.messages.append({"role": "assistant", "content": message_text})
-            return ChatTurnResult(ok=True, message=message_text, update=update, contract=self.contract)
+            return ChatTurnResult(
+                ok=True,
+                message=message_text,
+                update=update,
+                contract=self.contract,
+                tool_results=[result.model_dump(mode="json") for result in tool_results],
+            )
 
         completeness = self.pipeline.completeness.check(self.contract)
+        if completeness.ready_to_search:
+            self.contract.pending.pending_question = None
+            self.contract.pending.missing_fields = []
+            self.contract.pending.expected_answer_type = None
         if action == "answer_advisory":
             output = self._base_output(update)
             if update.advisory_response_zh:
@@ -292,6 +310,13 @@ class LLMFirstChatSession:
             return ChatTurnResult(ok=True, message=message_text, update=update, contract=self.contract)
 
         if action == "ask_clarification" or not completeness.ready_to_search:
+            self.contract.pending.pending_question = (
+                update.clarification_question_zh or completeness.clarification_question_zh
+            )
+            self.contract.pending.missing_fields = list(completeness.missing_required_fields)
+            self.contract.pending.expected_answer_type = _expected_answer_type(
+                completeness.missing_required_fields
+            )
             output = self._base_output(update)
             question = update.clarification_question_zh or completeness.clarification_question_zh
             if question and not _question_already_present(question, output):
@@ -430,6 +455,8 @@ class LLMFirstChatSession:
             )
             if trace:
                 parts.append(trace)
+        if self.debug:
+            parts.append(self._debug_update_summary(update))
         return parts
 
     def _log_turn(self, previous_contract, update, result, quality_flags) -> None:
@@ -470,13 +497,15 @@ class LLMFirstChatSession:
             exclusions=self.last_result.exclusions,
         )
 
-    def _tool_query_output(self, update) -> list[str]:
+    def _tool_query_output(self, update) -> tuple[list[str], list]:
         if not update.tool_requests:
-            return ["当前没有可执行的工具请求。你可以说：目的地天气怎么样，或 奥斯丁机场是哪个。"]
+            return ["当前没有可执行的工具请求。你可以说：目的地天气怎么样，或 奥斯丁机场是哪个。"], []
         context = ToolRequestContext(contract=self.contract)
         outputs: list[str] = []
+        results = []
         for request in update.tool_requests:
             result = self.tool_router.execute(request, context)
+            results.append(result)
             outputs.append(result.user_facing_text_zh)
             if self.debug:
                 outputs.append(
@@ -485,15 +514,33 @@ class LLMFirstChatSession:
                         "\n".join(
                             [
                                 f"- tool: {result.tool_name}",
-                                f"- success: {result.success}",
+                                f"- status: {result.status}",
                                 f"- source: {result.source}",
-                                f"- error: {result.error_message or '(none)'}",
+                                f"- is_live: {result.is_live}",
+                                f"- is_mock: {result.is_mock}",
+                                f"- fetched_at: {result.fetched_at or '(none)'}",
+                                f"- error: {result.error_code or '(none)'}",
                             ]
                         ),
                         border_style="magenta",
                     )
                 )
-        return outputs
+        return outputs, results
+
+    def _debug_update_summary(self, update) -> str:
+        current = self.contract.model_dump(mode="json") if self.contract else None
+        changed = _contract_diff(self._debug_previous_contract, current)
+        missing = self.contract.missing_mandatory_search_fields() if self.contract else []
+        request_text = [request.model_dump(mode="json") for request in update.tool_requests]
+        lines = [
+            f"[debug] intent: {update.user_intent_summary_zh or update.update_type}",
+            f"[debug] contract_diff: {changed}",
+            f"[debug] next_action: {self._next_action(update)}",
+            f"[debug] missing_fields: {missing}",
+        ]
+        if request_text:
+            lines.append(f"[debug] tool_request: {request_text}")
+        return "\n".join(lines)
 
     def export(self, export_dir: Path | None = None) -> Path:
         if export_dir is None:
@@ -649,3 +696,34 @@ def _question_already_present(question: str, output_parts: list[str]) -> bool:
         return True
     topic = question.split("？", 1)[0].split("?", 1)[0].strip()
     return bool(topic and topic in text)
+
+
+def _expected_answer_type(missing_fields: list[str]) -> str | None:
+    if any(field.startswith("time.") for field in missing_fields):
+        return "departure_date_or_window"
+    if "trip.origin_airport" in missing_fields:
+        return "origin_location"
+    if "trip.destination_airport" in missing_fields:
+        return "destination_location"
+    return None
+
+
+def _contract_diff(previous: dict | None, current: dict | None) -> dict:
+    before = _flatten_dict(previous or {})
+    after = _flatten_dict(current or {})
+    changed = {}
+    for key in sorted(set(before) | set(after)):
+        if before.get(key) != after.get(key):
+            changed[key] = {"before": before.get(key), "after": after.get(key)}
+    return dict(list(changed.items())[:30])
+
+
+def _flatten_dict(value: dict, prefix: str = "") -> dict:
+    result = {}
+    for key, item in value.items():
+        path = f"{prefix}.{key}" if prefix else str(key)
+        if isinstance(item, dict):
+            result.update(_flatten_dict(item, path))
+        else:
+            result[path] = item
+    return result

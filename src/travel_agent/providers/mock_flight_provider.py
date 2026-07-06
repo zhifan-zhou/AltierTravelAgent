@@ -167,7 +167,7 @@ class MockFlightProvider(BaseFlightProvider):
             currency=entry.get("currency", "USD"),
             provider_name="mock", source=entry.get("source", "mock_exact"),
             is_real=False, confidence="demo",
-            booking_available=entry.get("booking_available", True),
+            booking_available=False,
             baggage_included=entry.get("baggage_included", True),
             refundable=entry.get("refundable", False),
         )

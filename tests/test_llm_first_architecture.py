@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
+import httpx
 
 from travel_agent.contract.compiler import ConstraintCompiler
 from travel_agent.contract.merger import ContractMerger
@@ -19,6 +20,7 @@ from travel_agent.services.display_service import DisplayService
 from travel_agent.services.airport_service import AirportService
 from travel_agent.services.sft_logger import SFTLogger
 from travel_agent.tools.tool_router import ToolRequestContext, ToolRouter
+from travel_agent.tools.http_client import HttpClient
 
 
 INITIAL = "温州到匹兹堡，六月初，可以从上海走，越便宜越好"
@@ -415,18 +417,29 @@ async def test_clarification_answer_after_chengdu_austin_searches():
 
 @pytest.mark.asyncio
 async def test_destination_weather_tool_query_with_known_destination():
+    def fail(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("offline", request=request)
+
     session = make_session()
+    session.tool_router = ToolRouter(
+        http_client=HttpClient(transport=httpx.MockTransport(fail), retries=0, backoff_seconds=0)
+    )
     await session.handle_user_message("温州到匹兹堡，六月初，可以从上海走，越便宜越好")
     result = await session.handle_user_message("目的地天气怎么样？")
     assert result.update.next_action == "tool_query"
     assert result.update.tool_requests[0].tool_name == "weather"
     assert result.pipeline_result is None
-    assert "实时天气工具还未接入" in result.message
+    assert "Open-Meteo 当前不可用" in result.message
     assert "推荐方案" not in result.message
 
 
 def test_weather_tool_stub_does_not_invent_weather():
-    result = ToolRouter().execute(
+    def fail(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("offline", request=request)
+
+    result = ToolRouter(
+        http_client=HttpClient(transport=httpx.MockTransport(fail), retries=0, backoff_seconds=0)
+    ).execute(
         TravelRequirementContractUpdate(
             update_type="advisory_question",
             next_action="tool_query",
@@ -442,7 +455,8 @@ def test_weather_tool_stub_does_not_invent_weather():
         ToolRequestContext(contract=None),
     )
     assert not result.success
-    assert "未接入" in result.user_facing_text_zh
+    assert result.status == "unavailable"
+    assert "不会用猜测数据" in result.user_facing_text_zh
     assert "晴" not in result.user_facing_text_zh
 
 

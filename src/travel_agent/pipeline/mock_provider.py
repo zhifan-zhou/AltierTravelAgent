@@ -91,7 +91,7 @@ class MockFlightProvider:
             estimated_time_hours=_estimate_offer_hours(task, segments),
             source=raw.get("source", "mock"),
             confidence="known",
-            booking_available=bool(raw.get("booking_available", False)),
+            booking_available=False,
         )
 
     def _raw_allowed(self, raw: dict[str, Any], exclusions: ExclusionRules) -> bool:

@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Any, Literal
+from uuid import uuid4
 
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
@@ -33,6 +35,8 @@ class TimeWindow(BaseModel):
     departure_end_date: str | None = None
     flexible: bool = True
     flexible_date_confirmed: bool = False
+    return_date: str | None = None
+    date_flexibility: str | None = None
 
 
 class Passengers(BaseModel):
@@ -41,6 +45,37 @@ class Passengers(BaseModel):
     student_travel: bool = False
     baggage_count: int | None = None
     baggage_heavy: bool = False
+
+
+class PetCompanion(BaseModel):
+    id: str = Field(default_factory=lambda: uuid4().hex)
+    kind: str = "pet"
+    count: int = 1
+    size: str | None = None
+    active: bool = True
+    source: str = "user"
+
+
+class Companions(BaseModel):
+    adults: int = 1
+    children: int = 0
+    seniors: int = 0
+    pets: list[PetCompanion] = Field(default_factory=list)
+
+
+class Budget(BaseModel):
+    amount: float | None = None
+    currency: str | None = None
+    priority: Literal["low", "medium", "high"] = "medium"
+    preference: str | None = None
+
+
+class FlightPreferences(BaseModel):
+    avoid_red_eye: bool = False
+    nonstop_preferred: bool = False
+    max_stops: int | None = None
+    arrival_time_preference: str | None = None
+    departure_time_preference: str | None = None
 
 
 class Cabin(BaseModel):
@@ -88,28 +123,46 @@ class AirlinePreferences(BaseModel):
 
 
 class ConstraintItem(BaseModel):
+    id: str = Field(default_factory=lambda: uuid4().hex)
     type: Literal[
         "avoid_airport",
         "avoid_city",
         "avoid_airline",
         "no_split_ticket",
         "max_budget",
+        "pet_companion",
+        "avoid_red_eye",
+        "nonstop_preferred",
+        "max_stops",
+        "time_preference",
+        "flight_preference",
         "other",
     ] = "other"
+    category: str = "general"
     value: Any = None
     normalized_values: list[str] = Field(default_factory=list)
+    priority: Literal["low", "medium", "high"] = "medium"
     reason: str = ""
+    source: str = "user"
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0)
     source_user_message: str = ""
     active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class PreferenceItem(BaseModel):
+    id: str = Field(default_factory=lambda: uuid4().hex)
     type: Literal[
         "prefer_hub",
         "prefer_airline",
         "prefer_low_price",
         "prefer_low_risk",
         "prefer_short_time",
+        "prefer_nonstop",
+        "avoid_red_eye",
+        "departure_time",
+        "arrival_time",
         "other",
     ] = "other"
     value: Any = None
@@ -117,6 +170,8 @@ class PreferenceItem(BaseModel):
     weight_hint: Literal["low", "medium", "high"] = "medium"
     source_user_message: str = ""
     active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class SpecialRequirement(BaseModel):
@@ -152,11 +207,22 @@ class Metadata(BaseModel):
     history_summary: str = ""
 
 
+class PendingState(BaseModel):
+    pending_question: str | None = None
+    missing_fields: list[str] = Field(default_factory=list)
+    expected_answer_type: str | None = None
+    last_user_intent: str | None = None
+    last_tool_context: dict[str, Any] | None = None
+
+
 class TravelRequirementContract(BaseModel):
-    schema_version: str = "v1"
+    schema_version: str = "v2"
     trip: Trip = Field(default_factory=Trip)
     time: TimeWindow = Field(default_factory=TimeWindow)
     passengers: Passengers = Field(default_factory=Passengers)
+    companions: Companions = Field(default_factory=Companions)
+    budget: Budget = Field(default_factory=Budget)
+    preferences: FlightPreferences = Field(default_factory=FlightPreferences)
     cabin: Cabin = Field(default_factory=Cabin)
     geography: Geography = Field(default_factory=Geography)
     hub_policy: HubPolicy = Field(default_factory=HubPolicy)
@@ -170,6 +236,7 @@ class TravelRequirementContract(BaseModel):
     ready_to_search: bool = False
     confidence: float = 0.0
     metadata: Metadata = Field(default_factory=Metadata)
+    pending: PendingState = Field(default_factory=PendingState)
 
     def has_required_route(self) -> bool:
         return bool(self.trip.origin_airport and self.trip.destination_airport)
@@ -196,7 +263,7 @@ class TravelRequirementContract(BaseModel):
     @field_validator("schema_version")
     @classmethod
     def _schema_version(cls, value: str) -> str:
-        return value or "v1"
+        return value or "v2"
 
     def normalize(self) -> "TravelRequirementContract":
         self.constraints.hard_constraints = _coerce_model_list_silent(
@@ -257,6 +324,7 @@ class TravelRequirementContract(BaseModel):
                     str(v).upper() for v in values if v is not None and str(v).strip()
                 ]
         self.special_requirements = _dedupe_special_requirements(self.special_requirements)
+        self.companions.pets = _dedupe_pets(self.companions.pets)
 
         return self.remove_conflicts()
 
@@ -293,7 +361,12 @@ class TravelRequirementContract(BaseModel):
         hubs = "/".join(self.geography.acceptable_origin_hubs) or "自动"
         avoids = "/".join(self.geography.avoid_airports) or "无"
         time = self.time.departure_window_text or self.time.departure_text or ("灵活日期" if self.time.flexible_date_confirmed else "未定")
-        return f"{origin} 到 {dest}；时间：{time}；出发枢纽：{hubs}；排序：{self.ranking.profile}；避开：{avoids}"
+        active_pets = sum(pet.count for pet in self.companions.pets if pet.active)
+        pet_text = f"；宠物：{active_pets}" if active_pets else ""
+        budget_text = (
+            f"；预算：{self.budget.amount:g} {self.budget.currency or ''}" if self.budget.amount is not None else ""
+        )
+        return f"{origin} 到 {dest}；时间：{time}；出发枢纽：{hubs}；排序：{self.ranking.profile}；避开：{avoids}{budget_text}{pet_text}"
 
     def to_sft_target(self) -> dict[str, Any]:
         return self.model_dump(mode="json")
@@ -331,4 +404,24 @@ def _dedupe_special_requirements(items: list[SpecialRequirement]) -> list[Specia
         seen.add(key)
         item.impact_areas = dedupe([str(area).strip() for area in item.impact_areas if str(area).strip()])
         result.append(item)
+    return result
+
+
+def _dedupe_pets(items: list[PetCompanion]) -> list[PetCompanion]:
+    result: list[PetCompanion] = []
+    by_kind: dict[str, PetCompanion] = {}
+    for raw in items:
+        try:
+            item = raw if isinstance(raw, PetCompanion) else PetCompanion.model_validate(raw)
+        except ValidationError:
+            continue
+        key = item.kind.strip().casefold() or "pet"
+        existing = by_kind.get(key)
+        if existing is None:
+            by_kind[key] = item
+            result.append(item)
+        else:
+            existing.active = item.active
+            existing.count = item.count
+            existing.size = item.size or existing.size
     return result

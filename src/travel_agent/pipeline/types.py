@@ -50,6 +50,9 @@ class FlightOffer(BaseModel):
     source: str = "mock"
     confidence: str = "known"
     booking_available: bool = False
+    data_source: str = "mock_demo"
+    is_real_price: bool = False
+    bookable: bool = False
 
     @property
     def has_estimated_data(self) -> bool:
@@ -125,3 +128,4 @@ class ChatTurnResult(BaseModel):
     provider_call_count: int = 0
     export_dir: str | None = None
     debug_summary: str = ""
+    tool_results: list[dict] = Field(default_factory=list)
