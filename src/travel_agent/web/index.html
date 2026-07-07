@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AltierTravelAgent v0.4</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>AltierTravelAgent</h1>
+        <p>LLM-first Travel Planning Agent · version v0.4</p>
+      </div>
+      <div class="badges">
+        <span class="badge">No booking/payment</span>
+        <span class="badge muted">Flight prices demo/mock only</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <section class="panel">
+          <h2>TravelContract</h2>
+          <div id="contract" class="contract-grid muted-text">No session yet.</div>
+        </section>
+        <section class="panel">
+          <h2>Safety labels</h2>
+          <ul class="plain-list">
+            <li>Flight prices are demo/mock only.</li>
+            <li>Live tools: Open-Meteo / Frankfurter where available.</li>
+            <li>No booking, payment, ticketing, or price lock.</li>
+          </ul>
+        </section>
+      </aside>
+
+      <section class="chat-shell">
+        <section class="panel demo-panel">
+          <div class="demo-prompts">
+            <button data-prompt="我想从成都飞奥斯丁">成都 → 奥斯丁</button>
+            <button data-prompt="六月初，越便宜越好">日期 + 预算</button>
+            <button data-prompt="我想带狗一起去，不想坐红眼航班，最好不要转机">宠物 + 偏好</button>
+            <button data-prompt="帮我安排三天行程">三天行程</button>
+            <button data-prompt="估算一下预算">预算估算</button>
+            <button data-prompt="目的地天气怎么样？">天气</button>
+          </div>
+          <button id="reset" class="secondary">Reset session</button>
+        </section>
+
+        <section id="messages" class="messages panel" aria-live="polite"></section>
+
+        <form id="chat-form" class="composer">
+          <input
+            id="message-input"
+            autocomplete="off"
+            placeholder="Describe your trip, e.g. 帮我安排奥斯丁三天行程"
+          />
+          <button id="send" type="submit">Send</button>
+        </form>
+        <p id="error" class="error" role="alert"></p>
+      </section>
+
+      <aside class="cards-column">
+        <section class="panel">
+          <h2>Product cards</h2>
+          <div id="cards" class="cards muted-text">Cards appear after planning turns.</div>
+        </section>
+      </aside>
+    </main>
+
+    <script src="/static/app.js" type="module"></script>
+  </body>
+</html>

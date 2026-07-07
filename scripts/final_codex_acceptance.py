@@ -10,12 +10,15 @@ from datetime import datetime
 from pathlib import Path
 
 import httpx
+from fastapi.testclient import TestClient
 
 from travel_agent.config import load_settings
 from travel_agent.llm.deepseek_client import DeepSeekClient, DeepSeekRequirementAgent
 from travel_agent.llm.fake_client import FakeRequirementLLM
 from travel_agent.pipeline.orchestrator import LLMFirstChatSession
 from travel_agent.rendering.response_streamer import ResponseStreamer
+from travel_agent.server.app import create_app
+from travel_agent.server.session_store import SessionStore
 from travel_agent.services.display_service import DisplayService
 from travel_agent.services.sft_logger import SFTLogger
 from travel_agent.tools.http_client import HttpClient
@@ -94,10 +97,13 @@ async def main() -> None:
         contracts.append(result.contract.model_dump(mode="json") if result.contract else {})
         validations.append(validate_v03_step(8 + offset, result))
 
+    v04_web_api = validate_v04_web_api(settings, out / "web_sessions")
+
     validation = {
-        "ok": opening_ok["ok"] and all(item["ok"] for item in validations),
+        "ok": opening_ok["ok"] and all(item["ok"] for item in validations) and v04_web_api["ok"],
         "opening_screen": opening_ok,
         "steps": validations,
+        "v04_web_api": v04_web_api,
         "mode": "real_deepseek" if args.real_deepseek else "fake_llm",
     }
     (out / "validation.json").write_text(json.dumps(validation, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -112,6 +118,9 @@ async def main() -> None:
     print(f"validation: {'PASS' if validation['ok'] else 'FAIL'}")
     for item in validations:
         print(f"step {item['step']}: {'PASS' if item['ok'] else 'FAIL'} - {item['name']}")
+    print(f"v0.4 web api: {'PASS' if v04_web_api['ok'] else 'FAIL'}")
+    for check in v04_web_api.get("checks", []):
+        print(f"  {check['name']}: {'PASS' if check['ok'] else 'FAIL'}")
     if not validation["ok"]:
         raise SystemExit(1)
 
@@ -321,6 +330,56 @@ def validate_v03_step(idx, result) -> dict:
     return {
         "step": idx,
         "name": name,
+        "ok": all(ok for _, ok in checks),
+        "checks": [{"name": name, "ok": ok} for name, ok in checks],
+    }
+
+
+def validate_v04_web_api(settings, session_root: Path) -> dict:
+    def factory(debug: bool = False) -> LLMFirstChatSession:
+        return LLMFirstChatSession(
+            requirement_agent=DeepSeekRequirementAgent(FakeRequirementLLM()),
+            tool_router=_acceptance_tool_router(settings),
+            debug=debug,
+        )
+
+    client = TestClient(
+        create_app(
+            store=SessionStore(session_root),
+            session_factory=factory,
+        )
+    )
+    checks: list[tuple[str, bool]] = []
+    health = client.get("/api/health")
+    checks.append(("healthcheck", health.status_code == 200 and health.json().get("version") == "v0.4"))
+    index = client.get("/")
+    checks.append(("web ui loads", index.status_code == 200 and "AltierTravelAgent" in index.text and "No booking/payment" in index.text))
+    created = client.post("/api/sessions")
+    session_id = created.json().get("session_id")
+    checks.append(("create session", created.status_code == 200 and bool(session_id)))
+    response = client.post(
+        "/api/chat",
+        json={"session_id": session_id, "message": "我想从成都飞奥斯丁", "stream": False},
+    )
+    body = response.json()
+    checks.append(("non-stream chat", response.status_code == 200 and bool(body.get("assistant_response"))))
+    checks.append(("contract sidebar summary", body.get("contract_summary", {}).get("route", {}).get("origin", "").endswith("(TFU)")))
+    checks.append(("ordinary web clean", _clean_response(str(body))))
+    stream = client.post(
+        "/api/chat/stream",
+        json={"session_id": session_id, "message": "帮我安排奥斯丁三天行程，预算低一点"},
+    )
+    stream_text = stream.text
+    checks.append(("stream endpoint", stream.status_code == 200 and "event: token" in stream_text and "event: final" in stream_text))
+    checks.append(("stream clean", _clean_response(stream_text)))
+    checks.append(("itinerary card", '"type":"itinerary"' in stream_text.replace(" ", "")))
+    snapshot = client.get(f"/api/sessions/{session_id}")
+    snapshot_body = snapshot.json()
+    checks.append(("session persisted", snapshot.status_code == 200 and len(snapshot_body.get("messages", [])) >= 4))
+    deleted = client.delete(f"/api/sessions/{session_id}")
+    checks.append(("delete session", deleted.status_code == 200 and deleted.json().get("status") == "deleted"))
+    return {
+        "name": "v0.4 web api",
         "ok": all(ok for _, ok in checks),
         "checks": [{"name": name, "ok": ok} for name, ok in checks],
     }
