@@ -37,6 +37,7 @@ class TimeWindow(BaseModel):
     flexible_date_confirmed: bool = False
     return_date: str | None = None
     date_flexibility: str | None = None
+    duration_days: int | None = Field(default=None, ge=1, le=30)
 
 
 class Passengers(BaseModel):

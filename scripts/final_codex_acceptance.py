@@ -5,15 +5,21 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
+
+import httpx
 
 from travel_agent.config import load_settings
 from travel_agent.llm.deepseek_client import DeepSeekClient, DeepSeekRequirementAgent
 from travel_agent.llm.fake_client import FakeRequirementLLM
 from travel_agent.pipeline.orchestrator import LLMFirstChatSession
+from travel_agent.rendering.response_streamer import ResponseStreamer
 from travel_agent.services.display_service import DisplayService
 from travel_agent.services.sft_logger import SFTLogger
+from travel_agent.tools.http_client import HttpClient
+from travel_agent.tools.tool_router import ToolRouter
 
 
 SCENARIO = [
@@ -25,6 +31,25 @@ SCENARIO = [
     "不要纽约转",
     "解释第1个",
     "导出",
+]
+
+V03_SCENARIO = [
+    "帮我安排奥斯丁三天行程，预算低一点",
+    "估算一下预算",
+    "我想带猫一起去",
+    "检查一下当前约束和风险",
+]
+
+FORBIDDEN = [
+    "[debug]",
+    "ToolRequest",
+    "ToolResult",
+    "Contract(",
+    "schema update",
+    "traceback",
+    "route_semantics",
+    "LLM prompt",
+    "raw JSON",
 ]
 
 
@@ -44,6 +69,7 @@ async def main() -> None:
         requirement_agent=DeepSeekRequirementAgent(llm),
         logger=SFTLogger(out / "conversation_data"),
         display=display,
+        tool_router=_acceptance_tool_router(settings),
     )
 
     transcript: list[str] = []
@@ -60,6 +86,13 @@ async def main() -> None:
         updates.append(result.update.model_dump(mode="json") if result.update else {})
         contracts.append(result.contract.model_dump(mode="json") if result.contract else {})
         validations.append(validate_step(idx, result, session, display))
+
+    for offset, message in enumerate(V03_SCENARIO, start=1):
+        result = await session.handle_user_message(message)
+        transcript.append(f"> {message}\n{result.message}\n")
+        updates.append(result.update.model_dump(mode="json") if result.update else {})
+        contracts.append(result.contract.model_dump(mode="json") if result.contract else {})
+        validations.append(validate_v03_step(8 + offset, result))
 
     validation = {
         "ok": opening_ok["ok"] and all(item["ok"] for item in validations),
@@ -87,14 +120,19 @@ def validate_opening_screen(display: DisplayService) -> dict:
     text = display.opening_screen_text()
     tips = display.opening_tips()
     checks = [
-        ("title shown", "AI 出行管家" in text and "HubSplit Travel Demo" in text),
-        ("subtitle shown", "用自然语言描述行程" in text),
+        ("title shown", "AI 出行管家" in text and "Planning Travel Demo" in text),
+        ("subtitle shown", "旅行草案" in text),
         ("numbered examples", all(str(i) in text for i in range(1, 8))),
         ("example 1 route", "温州到匹兹堡" in text),
         ("example 6 explain", "解释第1个" in text),
         ("example 7 export", "导出" in text),
         ("tips shown", "quit" in tips and "改变目的地" in tips),
-        ("no raw implementation classes", "DeepSeekRequirementAgent" not in text and "TravelRequirementContract" not in text),
+        (
+            "no internal implementation details",
+            "DeepSeekRequirementAgent" not in text
+            and "TravelRequirementContract" not in text
+            and "schema update" not in text,
+        ),
     ]
     return {
         "name": "opening_screen",
@@ -220,10 +258,13 @@ def validate_step(idx, result, session, display) -> dict:
                 ("no route IDs in normal mode", "itin-" not in msg and "hubsplit-" not in msg and "direct-" not in msg),
                 ("mock warning present", "mock fallback" in msg.lower() or "估算" in msg),
                 ("contract summary shown", "当前需求" in msg or "路线" in msg),
-                ("agent progress shown", "Agent 进度" in msg and "候选枢纽组合" in msg),
+                ("no agent progress", "Agent 进度" not in msg and "候选枢纽组合" not in msg),
                 ("follow-up prompt shown", "你可以继续追问" in msg),
             ]
         )
+
+    checks.append(("response-only", _clean_response(msg)))
+    checks.append(("user response model", result.user_response is not None))
 
     return {
         "step": idx,
@@ -231,6 +272,119 @@ def validate_step(idx, result, session, display) -> dict:
         "ok": all(ok for _, ok in checks),
         "checks": [{"name": name, "ok": ok} for name, ok in checks],
     }
+
+
+def validate_v03_step(idx, result) -> dict:
+    checks = [
+        ("response-only", _clean_response(result.message)),
+        ("user response model", result.user_response is not None),
+        (
+            "stream joins exactly",
+            "".join(ResponseStreamer(chunk_size=12).stream_response(result.user_response)) == result.message,
+        ),
+    ]
+    if idx == 9:
+        checks.extend(
+            [
+                ("itinerary response", result.user_response.response_type == "itinerary"),
+                ("three days", result.message.count("Day ") == 3),
+                ("budget aware", result.contract.budget.preference == "lower"),
+                ("weather source", "Open-Meteo" in result.message or "open_meteo" in result.message),
+            ]
+        )
+        name = "v0.3 itinerary and streaming"
+    elif idx == 10:
+        checks.extend(
+            [
+                ("cost response", result.user_response.response_type == "cost_estimate"),
+                ("rough estimates labeled", "rough estimate" in result.message),
+                ("not a quote", "不是实时报价" in result.message),
+            ]
+        )
+        name = "v0.3 cost estimate"
+    elif idx == 11:
+        checks.extend(
+            [
+                ("pet constraint recorded", any(pet.active for pet in result.contract.companions.pets)),
+                ("policy reminder", "政策" in result.message),
+            ]
+        )
+        name = "v0.3 generic pet constraint"
+    else:
+        checks.extend(
+            [
+                ("constraint response", result.user_response.response_type == "constraint_check"),
+                ("official policy reminder", "官方" in result.message),
+            ]
+        )
+        name = "v0.3 constraint check"
+    return {
+        "step": idx,
+        "name": name,
+        "ok": all(ok for _, ok in checks),
+        "checks": [{"name": name, "ok": ok} for name, ok in checks],
+    }
+
+
+def _clean_response(message: str) -> bool:
+    lowered = message.casefold()
+    return all(marker.casefold() not in lowered for marker in FORBIDDEN)
+
+
+def _acceptance_tool_router(settings) -> ToolRouter:
+    def handler(request: httpx.Request) -> httpx.Response:
+        path = request.url.path
+        if path.endswith("/v1/search"):
+            return httpx.Response(
+                200,
+                json={
+                    "results": [
+                        {
+                            "name": "Austin",
+                            "country": "United States",
+                            "country_code": "US",
+                            "admin1": "Texas",
+                            "latitude": 30.2672,
+                            "longitude": -97.7431,
+                            "timezone": "America/Chicago",
+                        }
+                    ]
+                },
+            )
+        if path.endswith("/v1/forecast"):
+            return httpx.Response(
+                200,
+                json={
+                    "current": {"temperature_2m": 30, "weather_code": 1},
+                    "daily": {
+                        "time": ["2026-07-06", "2026-07-07", "2026-07-08"],
+                        "weather_code": [1, 2, 61],
+                        "temperature_2m_max": [36, 32, 30],
+                        "temperature_2m_min": [24, 23, 22],
+                        "precipitation_probability_max": [10, 20, 60],
+                    },
+                },
+            )
+        if path.endswith("/w/api.php"):
+            return httpx.Response(200, json={"query": {"search": [{"title": "奥斯汀"}]}})
+        if "/api/rest_v1/page/summary/" in path:
+            return httpx.Response(200, json={"extract": "奥斯汀目的地简介。"})
+        if path.endswith("/v1/latest"):
+            return httpx.Response(200, json={"date": "2026-07-03", "rates": {"CNY": 6.78}})
+        return httpx.Response(404, json={})
+
+    configured = replace(
+        settings,
+        enabled_tools=("weather", "airport_lookup", "time", "currency", "destination_brief"),
+    )
+    return ToolRouter(
+        settings=configured,
+        http_client=HttpClient(
+            transport=httpx.MockTransport(handler),
+            retries=0,
+            backoff_seconds=0,
+        ),
+    )
 
 
 def _all_recs_match(pipeline, origin: str, destination: str) -> bool:

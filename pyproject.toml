@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "altier-travel-agent"
-version = "0.2.0"
-description = "LLM-first travel agent MVP for conversational trip planning"
+version = "0.3.0"
+description = "LLM-first planning-grade travel agent MVP with streaming responses"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}

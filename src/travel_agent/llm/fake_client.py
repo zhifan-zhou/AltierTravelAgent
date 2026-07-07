@@ -94,6 +94,16 @@ class FakeRequirementLLM:
                 "help",
                 "可以直接描述路线、限制或排序偏好。例如：温州到匹兹堡，可以从上海走，越便宜越好；也可以追加：不要纽约转、主流航司优先、解释第1个。",
             )
+        if ("估算" in message or "多少钱" in message or "大概要" in message) and any(
+            token in message for token in ["预算", "费用", "钱", "花费"]
+        ):
+            return _planning_update(message, current, "cost_estimate", self._trace)
+        if "行程" in message and any(token in message for token in ["安排", "规划", "做", "生成"]):
+            return _planning_update(message, current, "itinerary", self._trace)
+        if ("检查" in message or "看看" in message) and any(
+            token in message for token in ["约束", "限制", "风险", "冲突"]
+        ):
+            return _planning_update(message, current, "constraint_check", self._trace)
         if "天气" in message:
             return _tool_update(
                 tool_name="weather",
@@ -138,15 +148,18 @@ class FakeRequirementLLM:
                 ack="我来查一份简短的目的地介绍。",
                 requires_current_contract=not bool(location),
             )
-        if ("不带" in message or "取消" in message or "算了" in message) and ("狗" in message or "宠物" in message):
+        if ("不带" in message or "取消" in message or "算了" in message) and any(
+            token in message for token in ["狗", "猫", "宠物"]
+        ):
             return _cancel_pet_update(message, self._trace)
-        if "狗" in message or "宠物" in message:
+        if any(token in message for token in ["狗", "猫", "宠物"]):
+            animal = "dog" if "狗" in message else "cat" if "猫" in message else "pet"
             update = _special_update(
                 message=message,
                 category="pet_travel",
-                description="用户想带狗同行" if "狗" in message else "用户有宠物同行需求",
+                description="用户有宠物同行需求",
                 structured_values={
-                    "animal": "dog" if "狗" in message else "unknown",
+                    "animal": animal,
                     "size": "unknown",
                     "in_cabin_or_checked": "unknown",
                 },
@@ -162,7 +175,7 @@ class FakeRequirementLLM:
                 "companions": {
                     "pets": [
                         {
-                            "kind": "dog" if "狗" in message else "pet",
+                            "kind": animal,
                             "count": 1,
                             "active": True,
                             "source": "user",
@@ -174,7 +187,7 @@ class FakeRequirementLLM:
                 {
                     "type": "pet_companion",
                     "category": "companions",
-                    "value": "dog" if "狗" in message else "pet",
+                    "value": animal,
                     "priority": "high",
                     "reason": "用户明确提出宠物同行",
                     "source_user_message": message,
@@ -887,21 +900,22 @@ def _special_update(
 
 
 def _cancel_pet_update(message: str, trace) -> dict:
+    animal = "dog" if "狗" in message else "cat" if "猫" in message else "pet"
     return {
         "update_type": "remove_special_requirement",
         "field_updates": {
             "companions": {
                 "pets": [
-                    {"kind": "dog" if "狗" in message else "pet", "count": 1, "active": False, "source": "user"}
+                    {"kind": animal, "count": 1, "active": False, "source": "user"}
                 ]
             }
         },
         "constraints_to_add": [],
-        "constraints_to_remove": ["pet_companion", "dog", "pet"],
+        "constraints_to_remove": ["pet_companion", animal, "pet"],
         "preferences_to_add": [],
         "preferences_to_remove": [],
         "special_requirements_to_add": [],
-        "special_requirements_to_remove": ["pet_travel", "dog", "pet"],
+        "special_requirements_to_remove": ["pet_travel", animal, "pet"],
         "clarification_questions": [],
         "next_action": "answer_advisory",
         "user_intent_summary_zh": "用户取消宠物同行约束。",
@@ -921,6 +935,88 @@ def _cancel_pet_update(message: str, trace) -> dict:
         ),
         "confidence": 0.96,
     }
+
+
+def _planning_update(message: str, current: dict, action: str, trace) -> dict:
+    location = _extract_known_location(message)
+    current_trip = current.get("trip") or {}
+    current_destination = current_trip.get("destination_airport")
+    field_updates: dict = {}
+    if location:
+        mapped = _destination_fields(location)
+        if mapped:
+            field_updates["trip"] = mapped
+    duration = _duration_days(message)
+    if duration:
+        field_updates["time"] = {"duration_days": duration}
+    if any(token in message for token in ["预算低", "低预算", "便宜", "省钱"]):
+        field_updates["budget"] = {"preference": "lower", "priority": "high"}
+        field_updates["ranking"] = {"profile": "cheapest", "price_priority": "high"}
+
+    update_type = "modify_existing" if current else "create_new"
+    if location and (not current_destination or field_updates.get("trip", {}).get("destination_airport") != current_destination):
+        update_type = "create_new"
+    labels = {
+        "itinerary": "生成逐日行程草案",
+        "cost_estimate": "生成粗略预算估算",
+        "constraint_check": "检查当前旅行约束",
+    }
+    return {
+        "update_type": update_type,
+        "field_updates": field_updates,
+        "constraints_to_add": [],
+        "constraints_to_remove": [],
+        "preferences_to_add": [],
+        "preferences_to_remove": [],
+        "special_requirements_to_add": [],
+        "special_requirements_to_remove": [],
+        "clarification_questions": [],
+        "next_action": action,
+        "user_intent_summary_zh": labels[action],
+        "advisory_response_zh": None,
+        "clarification_question_zh": None,
+        "should_search": False,
+        "should_rerun_search": False,
+        "should_rerank_only": False,
+        "selected_option_index": None,
+        "user_facing_ack_zh": "",
+        "reasoning_summary": labels[action],
+        "decision_trace": trace(
+            f"detect_{action}",
+            f"用户说：{message}",
+            labels[action],
+            ["next_action", *field_updates.keys()],
+        ),
+        "confidence": 0.94,
+    }
+
+
+def _duration_days(message: str) -> int | None:
+    chinese = {"一天": 1, "一日": 1, "三天": 3, "三日": 3, "五天": 5, "五日": 5}
+    for token, value in chinese.items():
+        if token in message:
+            return value
+    match = re.search(r"(\d+)\s*(?:天|日)", message)
+    if match:
+        return min(max(int(match.group(1)), 1), 30)
+    return None
+
+
+def _destination_fields(location: str) -> dict:
+    mapping = {
+        "奥斯丁": ("AUS", "Austin"),
+        "奥斯汀": ("AUS", "Austin"),
+        "Austin": ("AUS", "Austin"),
+        "成都": ("TFU", "Chengdu"),
+        "匹兹堡": ("PIT", "Pittsburgh"),
+        "温州": ("WNZ", "Wenzhou"),
+        "迈阿密": ("MIA", "Miami"),
+        "宁波": ("NGB", "Ningbo"),
+    }
+    row = mapping.get(location)
+    if not row:
+        return {}
+    return {"destination_text": location, "destination_airport": row[0], "destination_city": row[1]}
 
 
 def _budget_update(message: str, trace) -> dict:

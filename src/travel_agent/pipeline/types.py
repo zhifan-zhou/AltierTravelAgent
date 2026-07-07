@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 from travel_agent.contract.compiler import ExclusionRules
 from travel_agent.contract.models import TravelRequirementContract
 from travel_agent.llm.schemas import TravelRequirementContractUpdate
+from travel_agent.planning.models import UserResponse
 
 
 class HubCandidatePair(BaseModel):
@@ -36,6 +39,8 @@ class FlightSegment(BaseModel):
     airline_name: str | None = None
     flight_number: str | None = None
     mode: str = "flight"
+    departure_time: datetime | None = None
+    arrival_time: datetime | None = None
 
 
 class FlightOffer(BaseModel):
@@ -129,3 +134,4 @@ class ChatTurnResult(BaseModel):
     export_dir: str | None = None
     debug_summary: str = ""
     tool_results: list[dict] = Field(default_factory=list)
+    user_response: UserResponse | None = None

@@ -472,11 +472,12 @@ async def test_airport_lookup_tool_query():
 
 @pytest.mark.asyncio
 async def test_display_uses_actual_decision_trace():
-    session = make_session(show_reasoning=True)
+    session = make_session(debug=True, show_reasoning=True)
     result = await session.handle_user_message(INITIAL)
     trace_step = result.update.decision_trace[0].step
-    assert f"1. {trace_step}" in result.message
-    assert "extract_new_search" in result.message
+    assert trace_step in result.debug_summary
+    assert "extract_new_search" in result.debug_summary
+    assert "extract_new_search" not in result.message
 
 
 @pytest.mark.asyncio
@@ -530,9 +531,10 @@ async def test_normal_chat_output_has_no_info_logs():
 async def test_debug_mode_includes_diagnostics(tmp_path):
     session = make_session(tmp_path, debug=True)
     result = await session.handle_user_message(INITIAL)
-    assert "Debug diagnostics" in result.message
-    assert "update_type: create_new" in result.message
-    assert "search_task_count" in result.message
+    assert "Debug diagnostics" in result.debug_summary
+    assert "update_type: create_new" in result.debug_summary
+    assert "search_task_count" in result.debug_summary
+    assert "Debug diagnostics" not in result.message
     assert (tmp_path / "debug" / "logs.txt").exists()
 
 
@@ -588,7 +590,7 @@ async def test_invalid_llm_output_does_not_show_old_recommendations():
     session.requirement_agent = DeepSeekRequirementAgent(TextOnlyLLM())
     result = await session.handle_user_message("随便再查一下")
     assert not result.ok
-    assert "没有返回有效" in result.message
+    assert "没能可靠理解" in result.message
     assert "温州 WNZ" not in result.message
     assert session.last_result is None
 
@@ -597,7 +599,8 @@ async def test_invalid_llm_output_does_not_show_old_recommendations():
 async def test_mock_fallback_warning_appears():
     session = make_session()
     result = await session.handle_user_message(INITIAL)
-    assert "mock fallback" in result.message
+    assert "演示航班数据" in result.message
+    assert "不代表真实价格或可预订结果" in result.message
 
 
 @pytest.mark.asyncio
@@ -764,7 +767,8 @@ async def test_debug_mode_saves_diagnostics_on_internal_error(tmp_path):
     )
     result = await session.handle_user_message("随便一句")
     assert not result.ok
-    assert "Traceback" in result.message
+    assert "Traceback" in result.debug_summary
+    assert "Traceback" not in result.message
     assert list((tmp_path / "debug").glob("turn_error_*.txt"))
 
 
@@ -928,7 +932,8 @@ def test_format_savings_no_savings():
 async def test_search_status_message_shown():
     session = make_session()
     result = await session.handle_user_message(INITIAL)
-    assert "搜索组合路线" in result.message
+    assert "推荐方案" in result.message
+    assert "正在搜索" not in result.message
 
 
 @pytest.mark.asyncio

@@ -13,6 +13,10 @@ from travel_agent.config import load_settings
 from travel_agent.llm.deepseek_client import DeepSeekClient, DeepSeekRequirementAgent
 from travel_agent.llm.fake_client import FakeRequirementLLM
 from travel_agent.pipeline.orchestrator import LLMFirstChatSession
+from travel_agent.planning.models import UserResponse
+from travel_agent.rendering.debug_renderer import DebugRenderer
+from travel_agent.rendering.response_streamer import ResponseStreamer
+from travel_agent.rendering.user_renderer import UserRenderer
 from travel_agent.services.display_service import DisplayService
 from travel_agent.services.sft_logger import SFTLogger
 
@@ -29,7 +33,8 @@ def main() -> None:
 
     chat = sub.add_parser("chat", help="Start DeepSeek LLM-first chat")
     chat.add_argument("--debug", action="store_true")
-    chat.add_argument("--show-reasoning", action="store_true", help="Show validated schema decision trace")
+    chat.add_argument("--no-stream", action="store_true", help="Print each final response at once")
+    chat.add_argument("--show-reasoning", action="store_true", help="Include decision trace in --debug output")
 
     search = sub.add_parser("search", help="Run one deterministic one-shot search with FakeLLM")
     search.add_argument("query")
@@ -39,7 +44,13 @@ def main() -> None:
 
     args = parser.parse_args()
     if args.command == "chat":
-        asyncio.run(run_chat(debug=args.debug, show_reasoning=args.show_reasoning))
+        asyncio.run(
+            run_chat(
+                debug=args.debug,
+                show_reasoning=args.show_reasoning,
+                stream=not args.no_stream,
+            )
+        )
     elif args.command == "search":
         asyncio.run(run_search(args.query))
     elif args.command == "llm-check":
@@ -48,7 +59,12 @@ def main() -> None:
         parser.print_help()
 
 
-async def run_chat(*, debug: bool = False, show_reasoning: bool = False) -> None:
+async def run_chat(
+    *,
+    debug: bool = False,
+    show_reasoning: bool = False,
+    stream: bool = True,
+) -> None:
     settings = load_settings()
     if not settings.deepseek_configured:
         _print_missing_deepseek()
@@ -77,8 +93,10 @@ async def run_chat(*, debug: bool = False, show_reasoning: bool = False) -> None
             break
         if not message:
             continue
-        result = await _handle_with_status(session, message)
-        _print_message(result.message)
+        result = await session.handle_user_message(message)
+        if debug and result.debug_summary:
+            print(DebugRenderer().render(result.debug_summary), file=sys.stderr, flush=True)
+        emit_user_response(result.user_response, stream=stream)
         if result.update and result.update.update_type == "quit":
             break
 
@@ -89,7 +107,7 @@ async def run_search(query: str) -> None:
         logger=SFTLogger(),
     )
     result = await session.handle_user_message(query)
-    print(result.message)
+    emit_user_response(result.user_response, stream=False)
 
 
 async def run_llm_check(*, ping: bool = False) -> None:
@@ -124,7 +142,7 @@ def _print_opening(*, debug_dir: Path | None = None) -> None:
         )
         console.print(panel)
         if debug_dir:
-            console.print(f"[dim]Debug logs: {debug_dir / 'logs.txt'}[/dim]")
+            Console(stderr=True).print(f"[dim]Debug logs: {debug_dir / 'logs.txt'}[/dim]")
     except Exception:
         print("╭──────────────────────────────────────────────╮")
         print("│  AI 出行管家 · HubSplit Travel Demo           │")
@@ -133,7 +151,7 @@ def _print_opening(*, debug_dir: Path | None = None) -> None:
         print()
         print(body)
         if debug_dir:
-            print(f"Debug logs: {debug_dir / 'logs.txt'}")
+            print(f"Debug logs: {debug_dir / 'logs.txt'}", file=sys.stderr)
 
 
 def _print_missing_deepseek() -> None:
@@ -155,24 +173,26 @@ def _print_missing_deepseek() -> None:
         print(body)
 
 
-async def _handle_with_status(session: LLMFirstChatSession, message: str):
+def emit_user_response(
+    response: UserResponse | None,
+    *,
+    stream: bool,
+    output=None,
+    streamer: ResponseStreamer | None = None,
+) -> None:
+    if response is None:
+        response = UserResponse(text="本轮没有可显示的结果，请重试。", response_type="error")
+    target = output or sys.stdout
+    if not stream:
+        print(UserRenderer().render(response), file=target, flush=True)
+        return
+    active_streamer = streamer or ResponseStreamer()
     try:
-        from rich.console import Console
-
-        console = Console()
-        with console.status("[cyan]正在理解你的需求...[/cyan]", spinner="dots"):
-            return await session.handle_user_message(message)
-    except Exception:
-        return await session.handle_user_message(message)
-
-
-def _print_message(message: str) -> None:
-    try:
-        from rich.console import Console
-
-        Console().print(message, markup=False)
-    except Exception:
-        print(message)
+        for chunk in active_streamer.stream_response(response):
+            print(chunk, end="", file=target, flush=True)
+        print(file=target, flush=True)
+    except (BrokenPipeError, KeyboardInterrupt):
+        print(file=target, flush=True)
 
 
 if __name__ == "__main__":

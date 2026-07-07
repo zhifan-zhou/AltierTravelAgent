@@ -77,6 +77,8 @@ class MockFlightProvider:
                 airline_name=s.get("airline_name"),
                 flight_number=s.get("flight_number"),
                 mode="flight",
+                departure_time=s.get("departure_time"),
+                arrival_time=s.get("arrival_time"),
             )
             for s in raw.get("segments", [])
         ]

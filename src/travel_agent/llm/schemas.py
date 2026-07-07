@@ -39,6 +39,9 @@ NextAction = Literal[
     "smalltalk",
     "quit",
     "tool_query",
+    "itinerary",
+    "cost_estimate",
+    "constraint_check",
     "no_op",
 ]
 

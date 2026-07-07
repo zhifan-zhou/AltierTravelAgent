@@ -91,20 +91,20 @@ class DisplayService:
     def opening_screen_text(self) -> str:
         return "\n".join(
             [
-                "AI 出行管家 · HubSplit Travel Demo",
-                "用自然语言描述行程，我会先理解需求，再搜索组合路线。",
+                "AI 出行管家 · Planning Travel Demo",
+                "用自然语言描述路线、预算和偏好，我会给出可行动的旅行草案。",
                 "",
                 "核心能力：",
                 "• 临近大城市组合搜索：温州 → 上海/杭州/南京 → 美国枢纽 → 目的地",
                 "• 多轮自然语言修改：排除机场、换目的地、调整航司/风险偏好",
                 "• 可解释推荐：价格、风险、航司、数据来源都清楚展示",
-                "• SFT-ready logging：每轮对话都会转成结构化 schema update",
+                "• 逐日行程、粗略预算和约束风险提醒",
                 "",
                 "试试这样说：",
                 "1. 温州到匹兹堡，六月初，可以从上海走，越便宜越好",
                 "2. 我其实想看看宁波到迈阿密",
                 "3. 可以去上海浦东，但不去虹桥",
-                "4. 主流航司优先",
+                "4. 帮我安排三天行程，再估算一下预算",
                 "5. 不要纽约转",
                 "6. 解释第1个",
                 "7. 导出",
@@ -315,7 +315,7 @@ class DisplayService:
         body = "\n".join(
             [
                 "以下是演示航班数据，不代表真实价格或可预订结果。",
-                "mock/demo 航班不可下单、不可锁价；部分 mock fallback 数值仅用于验证 workflow。",
+                "mock/demo 航班不可下单、不可锁价；部分 fallback 数值仅用于功能演示。",
             ]
         )
         return self._panel("⚠ 数据说明", body, border_style="yellow")

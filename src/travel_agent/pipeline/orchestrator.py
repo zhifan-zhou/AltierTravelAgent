@@ -12,6 +12,12 @@ from travel_agent.contract.completeness import RequirementCompletenessChecker
 from travel_agent.contract.merger import ContractMerger
 from travel_agent.contract.models import TravelRequirementContract
 from travel_agent.llm.deepseek_client import DeepSeekRequirementAgent, InvalidRequirementUpdate
+from travel_agent.llm.schemas import ToolRequest
+from travel_agent.planning.constraint_checker import ConstraintChecker
+from travel_agent.planning.cost_estimator import CostEstimator
+from travel_agent.planning.itinerary_builder import ItineraryBuilder
+from travel_agent.planning.models import SourceRef, UserResponse
+from travel_agent.planning.response_planner import ResponsePlanner
 from travel_agent.pipeline.hubsplit_planner import HubSplitPlanner
 from travel_agent.pipeline.mock_provider import MockFlightProvider
 from travel_agent.pipeline.ranking_service import RankingService
@@ -19,15 +25,16 @@ from travel_agent.pipeline.route_composer import RouteComposer
 from travel_agent.pipeline.search_task_planner import SearchTaskPlanner
 from travel_agent.pipeline.types import ChatTurnResult, PipelineResult
 from travel_agent.pipeline.validator import RecommendationValidator
+from travel_agent.rendering.user_renderer import UserRenderer
 from travel_agent.services.display_service import DisplayService
 from travel_agent.services.sft_logger import SFTLogger
+from travel_agent.tools.base import ToolResult
 from travel_agent.tools.tool_router import ToolRequestContext, ToolRouter
 
 
 INVALID_UPDATE_MESSAGE = "\n".join(
     [
-        "DeepSeek 没有返回有效的可执行需求更新。",
-        "我没有继续使用旧结果，以避免展示错误路线。",
+        "我没能可靠理解这条需求，因此没有继续使用旧结果。",
         "你可以换一种说法，例如：“换成宁波到迈阿密”。",
     ]
 )
@@ -153,6 +160,11 @@ class LLMFirstChatSession:
         display: DisplayService | None = None,
         logger: SFTLogger | None = None,
         tool_router: ToolRouter | None = None,
+        itinerary_builder: ItineraryBuilder | None = None,
+        cost_estimator: CostEstimator | None = None,
+        constraint_checker: ConstraintChecker | None = None,
+        response_planner: ResponsePlanner | None = None,
+        user_renderer: UserRenderer | None = None,
         debug: bool = False,
         show_reasoning: bool = False,
         debug_dir: Path | None = None,
@@ -163,8 +175,13 @@ class LLMFirstChatSession:
         self.display = display or DisplayService()
         self.logger = logger
         self.tool_router = tool_router or ToolRouter()
+        self.itinerary_builder = itinerary_builder or ItineraryBuilder()
+        self.cost_estimator = cost_estimator or CostEstimator()
+        self.constraint_checker = constraint_checker or ConstraintChecker()
+        self.response_planner = response_planner or ResponsePlanner()
+        self.user_renderer = user_renderer or UserRenderer()
         self.debug = debug
-        self.show_reasoning = show_reasoning or debug
+        self.show_reasoning = bool(debug and show_reasoning)
         self.debug_dir = Path(debug_dir) if debug_dir else None
         if self.debug and self.debug_dir:
             self.debug_dir.mkdir(parents=True, exist_ok=True)
@@ -179,12 +196,16 @@ class LLMFirstChatSession:
         self.turn_samples: list[dict] = []
         self.last_export_dir: Path | None = None
         self._debug_previous_contract: dict | None = None
+        self.last_tool_results: dict[str, ToolResult] = {}
+        self.last_itinerary = None
+        self.last_cost_estimate = None
 
     async def handle_user_message(self, message: str) -> ChatTurnResult:
         try:
-            return await self._handle_user_message_inner(message)
+            result = await self._handle_user_message_inner(message)
         except Exception as exc:
-            return self._handle_internal_error(exc, message)
+            result = self._handle_internal_error(exc, message)
+        return self._finalize_response(result)
 
     async def _handle_user_message_inner(self, message: str) -> ChatTurnResult:
         previous_contract = self.contract.model_dump(mode="json") if self.contract else None
@@ -217,7 +238,6 @@ class LLMFirstChatSession:
 
         if action == "explain_result":
             output = self._base_output(update)
-            output.append(self.display.action_summary(update.update_type))
             output.append(self._detail_for_update(update))
             if self.last_result:
                 output.append(
@@ -234,7 +254,6 @@ class LLMFirstChatSession:
         if action == "export":
             export_dir = self.export()
             output = self._base_output(update)
-            output.append(self.display.action_summary(update.update_type))
             output.append(self.display.export_success_panel(export_dir))
             message_text = "\n\n".join(part for part in output if part)
             self.messages.append({"role": "assistant", "content": message_text})
@@ -267,9 +286,8 @@ class LLMFirstChatSession:
         self.contract.pending.last_user_intent = update.user_intent_summary_zh or update.update_type
 
         if action == "tool_query":
-            output = self._base_output(update)
             tool_output, tool_results = self._tool_query_output(update)
-            output.extend(tool_output)
+            output = list(tool_output)
             self.contract.pending.last_tool_context = {
                 "requests": [request.model_dump(mode="json") for request in update.tool_requests],
                 "results": [result.model_dump(mode="json") for result in tool_results],
@@ -285,6 +303,15 @@ class LLMFirstChatSession:
                 contract=self.contract,
                 tool_results=[result.model_dump(mode="json") for result in tool_results],
             )
+
+        if action == "itinerary":
+            return self._handle_itinerary(previous_contract, update)
+
+        if action == "cost_estimate":
+            return self._handle_cost_estimate(previous_contract, update)
+
+        if action == "constraint_check":
+            return self._handle_constraint_check(previous_contract, update)
 
         completeness = self.pipeline.completeness.check(self.contract)
         if completeness.ready_to_search:
@@ -354,14 +381,12 @@ class LLMFirstChatSession:
         self.displayed_options = list(result.recommendations)
 
         output = self._base_output(update)
-        output.append(self.display.action_summary(update.update_type, rerank_only=rerank_only))
         summary = self.display.contract_summary_zh(self.contract)
         if summary:
             output.append(summary)
         special_warning = self.display.special_requirement_warning_panel(self.contract)
         if special_warning:
             output.append(special_warning)
-        output.append(self.display.agent_progress(result, contract=self.contract, rerank_only=rerank_only))
         table = self.display.recommendations_table(
             result.recommendations,
             contract=self.contract,
@@ -400,7 +425,6 @@ class LLMFirstChatSession:
         self.history_summary = self.contract.summary_zh()
         debug_summary = self._debug_summary(update, result, full_search=full_search, rerank_only=rerank_only)
         if self.debug and debug_summary:
-            output.append(debug_summary)
             self._write_debug_log(debug_summary)
         message_text = "\n\n".join(part for part in output if part)
         self.messages.append({"role": "assistant", "content": message_text})
@@ -415,6 +439,196 @@ class LLMFirstChatSession:
             provider_call_count=result.provider_call_count,
             debug_summary=debug_summary,
         )
+
+    def _handle_itinerary(self, previous_contract: dict | None, update) -> ChatTurnResult:
+        if not self.contract or not self.contract.trip.destination_airport:
+            return self._planning_clarification(
+                update,
+                "你想去哪个目的地？告诉我城市后，我可以先按 1 天、3 天或 5 天做草案。",
+                missing_field="trip.destination_airport",
+            )
+        context = ToolRequestContext(contract=self.contract)
+        weather = self.tool_router.execute(
+            ToolRequest(
+                tool_name="weather",
+                arguments={"days": self.contract.time.duration_days or 3},
+                reason_zh="行程草案需要可选的天气信息。",
+                requires_current_contract=True,
+            ),
+            context,
+        )
+        brief = self.tool_router.execute(
+            ToolRequest(
+                tool_name="destination_brief",
+                arguments={},
+                reason_zh="行程草案可使用有出处的目的地简介。",
+                requires_current_contract=True,
+            ),
+            context,
+        )
+        self.last_tool_results.update({"weather": weather, "destination_brief": brief})
+        plan = self.itinerary_builder.build(
+            self.contract,
+            duration_days=self.contract.time.duration_days,
+            weather_result=weather,
+            destination_brief_result=brief,
+        )
+        checks = self.constraint_checker.check(
+            self.contract,
+            weather_result=weather,
+            pipeline_result=self.last_result,
+        )
+        response = self.response_planner.itinerary(plan, checks)
+        self.last_itinerary = plan
+        self._record_planning_turn(previous_contract, update, "itinerary", [weather, brief])
+        self.messages.append({"role": "assistant", "content": response.text})
+        return ChatTurnResult(
+            ok=True,
+            message=response.text,
+            update=update,
+            contract=self.contract,
+            pipeline_result=self.last_result,
+            tool_results=[weather.model_dump(mode="json"), brief.model_dump(mode="json")],
+            user_response=response,
+        )
+
+    def _handle_cost_estimate(self, previous_contract: dict | None, update) -> ChatTurnResult:
+        if not self.contract or not self.contract.trip.destination_airport:
+            return self._planning_clarification(
+                update,
+                "你想估算哪个目的地、几天的旅行预算？",
+                missing_field="trip.destination_airport",
+            )
+        conversion = None
+        target_currency = (self.contract.budget.currency or "USD").upper()
+        if target_currency != "USD":
+            conversion = self.tool_router.execute(
+                ToolRequest(
+                    tool_name="currency",
+                    arguments={"amount": 1, "from_currency": "USD", "to_currency": target_currency},
+                    reason_zh="预算估算需要参考汇率。",
+                ),
+                ToolRequestContext(contract=self.contract),
+            )
+            self.last_tool_results["currency"] = conversion
+        estimate = self.cost_estimator.estimate(
+            self.contract,
+            duration_days=self.contract.time.duration_days,
+            pipeline_result=self.last_result,
+            conversion_result=conversion,
+        )
+        checks = self.constraint_checker.check(
+            self.contract,
+            cost_estimate=estimate,
+            weather_result=self.last_tool_results.get("weather"),
+            pipeline_result=self.last_result,
+        )
+        response = self.response_planner.cost_estimate(estimate, checks)
+        self.last_cost_estimate = estimate
+        tool_results = [conversion] if conversion else []
+        self._record_planning_turn(previous_contract, update, "cost_estimate", tool_results)
+        self.messages.append({"role": "assistant", "content": response.text})
+        return ChatTurnResult(
+            ok=True,
+            message=response.text,
+            update=update,
+            contract=self.contract,
+            pipeline_result=self.last_result,
+            tool_results=[item.model_dump(mode="json") for item in tool_results],
+            user_response=response,
+        )
+
+    def _handle_constraint_check(self, previous_contract: dict | None, update) -> ChatTurnResult:
+        if not self.contract:
+            return self._planning_clarification(
+                update,
+                "请先告诉我目的地、预算或同行限制，我再帮你检查约束。",
+                missing_field="trip.destination_airport",
+            )
+        checks = self.constraint_checker.check(
+            self.contract,
+            cost_estimate=self.last_cost_estimate,
+            weather_result=self.last_tool_results.get("weather"),
+            pipeline_result=self.last_result,
+        )
+        response = self.response_planner.constraint_check(checks)
+        self._record_planning_turn(previous_contract, update, "constraint_check", [])
+        self.messages.append({"role": "assistant", "content": response.text})
+        return ChatTurnResult(
+            ok=True,
+            message=response.text,
+            update=update,
+            contract=self.contract,
+            pipeline_result=self.last_result,
+            user_response=response,
+        )
+
+    def _planning_clarification(
+        self,
+        update,
+        question: str,
+        *,
+        missing_field: str,
+    ) -> ChatTurnResult:
+        if self.contract:
+            self.contract.pending.pending_question = question
+            self.contract.pending.missing_fields = [missing_field]
+            self.contract.pending.expected_answer_type = "destination_location"
+        response = self.response_planner.from_text(question, response_type="clarification")
+        self.messages.append({"role": "assistant", "content": response.text})
+        return ChatTurnResult(
+            ok=True,
+            message=response.text,
+            update=update,
+            contract=self.contract,
+            user_response=response,
+        )
+
+    def _record_planning_turn(
+        self,
+        previous_contract: dict | None,
+        update,
+        action: str,
+        tool_results: list[ToolResult],
+    ) -> None:
+        if self.contract:
+            self.contract.pending.last_tool_context = {
+                "results": [item.model_dump(mode="json") for item in tool_results]
+            }
+        self._log_turn(previous_contract, update, None, {"action": action, "planning": True})
+        self.history_summary = self.contract.summary_zh() if self.contract else self.history_summary
+
+    def _finalize_response(self, result: ChatTurnResult) -> ChatTurnResult:
+        if result.user_response is None:
+            response_type = _response_type_for_turn(result)
+            sources = _source_refs(result.tool_results)
+            result.user_response = self.response_planner.from_text(
+                result.message,
+                response_type=response_type,
+                sources=sources,
+            )
+        result.message = self.user_renderer.render(result.user_response)
+        if self.debug:
+            debug_parts: list[str] = []
+            if result.update:
+                debug_parts.append(self._debug_update_summary(result.update))
+                if self.show_reasoning and result.update.decision_trace:
+                    debug_parts.append(
+                        "[debug] decision_trace: "
+                        + str([item.model_dump(mode="json") for item in result.update.decision_trace])
+                    )
+            for item in result.tool_results:
+                debug_parts.append(
+                    "[debug] tool_result: "
+                    f"{item.get('tool_name')} status={item.get('status')} "
+                    f"source={item.get('source')} is_live={item.get('is_live')}"
+                )
+            if result.debug_summary:
+                debug_parts.append(result.debug_summary)
+            result.debug_summary = "\n".join(part for part in debug_parts if part)
+        else:
+            result.debug_summary = ""
+        return result
 
     def _should_run_full_search(self, update) -> bool:
         if self.last_result is None:
@@ -446,18 +660,7 @@ class LLMFirstChatSession:
         return "no_op"
 
     def _base_output(self, update) -> list[str]:
-        parts = [update.user_facing_ack_zh]
-        if self.show_reasoning:
-            parts.append("LLM: DeepSeek ✓ schema update validated")
-            trace = self.display.decision_trace_text(
-                update.decision_trace,
-                max_items=None if self.debug else 3,
-            )
-            if trace:
-                parts.append(trace)
-        if self.debug:
-            parts.append(self._debug_update_summary(update))
-        return parts
+        return [update.user_facing_ack_zh]
 
     def _log_turn(self, previous_contract, update, result, quality_flags) -> None:
         if not self.contract:
@@ -506,25 +709,8 @@ class LLMFirstChatSession:
         for request in update.tool_requests:
             result = self.tool_router.execute(request, context)
             results.append(result)
+            self.last_tool_results[result.tool_name] = result
             outputs.append(result.user_facing_text_zh)
-            if self.debug:
-                outputs.append(
-                    self.display._panel(
-                        "Tool Diagnostics",
-                        "\n".join(
-                            [
-                                f"- tool: {result.tool_name}",
-                                f"- status: {result.status}",
-                                f"- source: {result.source}",
-                                f"- is_live: {result.is_live}",
-                                f"- is_mock: {result.is_mock}",
-                                f"- fetched_at: {result.fetched_at or '(none)'}",
-                                f"- error: {result.error_code or '(none)'}",
-                            ]
-                        ),
-                        border_style="magenta",
-                    )
-                )
         return outputs, results
 
     def _debug_update_summary(self, update) -> str:
@@ -650,7 +836,6 @@ class LLMFirstChatSession:
                     f"diagnostics: {path}",
                 ]
             )
-            output = f"{output}\n\n{debug_summary}"
             self._write_debug_log(debug_summary)
         self.messages.append({"role": "assistant", "content": output})
         return ChatTurnResult(ok=False, message=output, contract=self.contract, debug_summary=debug_summary)
@@ -696,6 +881,41 @@ def _question_already_present(question: str, output_parts: list[str]) -> bool:
         return True
     topic = question.split("？", 1)[0].split("?", 1)[0].strip()
     return bool(topic and topic in text)
+
+
+def _response_type_for_turn(result: ChatTurnResult) -> str:
+    if not result.ok:
+        return "error"
+    if result.pipeline_result is not None:
+        return "flight_demo"
+    action = result.update.next_action if result.update else ""
+    if action == "ask_clarification":
+        return "clarification"
+    if action == "tool_query":
+        return "tool_answer"
+    if action == "itinerary":
+        return "itinerary"
+    if action == "cost_estimate":
+        return "cost_estimate"
+    if action == "constraint_check":
+        return "constraint_check"
+    return "general_answer"
+
+
+def _source_refs(tool_results: list[dict]) -> list[SourceRef]:
+    refs: list[SourceRef] = []
+    seen: set[tuple[str, str]] = set()
+    for item in tool_results:
+        source = str(item.get("source") or "").strip()
+        if not source:
+            continue
+        label = str(item.get("tool_name") or "工具数据")
+        key = (label, source)
+        if key in seen:
+            continue
+        seen.add(key)
+        refs.append(SourceRef(label=label, source=source, is_live=bool(item.get("is_live"))))
+    return refs
 
 
 def _expected_answer_type(missing_fields: list[str]) -> str | None:

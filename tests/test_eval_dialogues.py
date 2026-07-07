@@ -110,11 +110,13 @@ async def test_eval_debug_mode_shows_structured_turn_and_tool_metadata_only_when
     debug_chat.debug = True
     await debug_chat.handle_user_message("我想从成都飞奥斯丁")
     debug_result = await debug_chat.handle_user_message("目的地天气怎么样？")
-    assert "[debug] intent:" in debug_result.message
-    assert "[debug] contract_diff:" in debug_result.message
-    assert "[debug] next_action: tool_query" in debug_result.message
-    assert "[debug] tool_request:" in debug_result.message
-    assert "- status: unavailable" in debug_result.message
+    assert "[debug] intent:" in debug_result.debug_summary
+    assert "[debug] contract_diff:" in debug_result.debug_summary
+    assert "[debug] next_action: tool_query" in debug_result.debug_summary
+    assert "[debug] tool_request:" in debug_result.debug_summary
+    assert "tool_result: weather status=unavailable" in debug_result.debug_summary
+    assert "[debug]" not in debug_result.message
 
     normal_result = await session().handle_user_message("奥斯丁机场是哪个？")
     assert "[debug]" not in normal_result.message
+    assert normal_result.debug_summary == ""
