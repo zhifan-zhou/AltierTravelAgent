@@ -18,7 +18,9 @@ cache/
 
 .DS_Store
 
+runs
 runs/
+.local
 .local/
 logs
 logs/
